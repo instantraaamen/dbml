@@ -12,6 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [16.x, 18.x, 20.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -116,11 +117,11 @@ jobs:
         run: npm ci
 
       - name: 🏗️ Test build process
-        run: npm run convert database_spec.dbml ./test-build-output
+        run: npm run convert database_spec.dbml test-build-output
 
       - name: 📁 Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-output
-          path: ./test-build-output/
+          path: test-build-output/
           retention-days: 1
