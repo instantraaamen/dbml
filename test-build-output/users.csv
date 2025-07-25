@@ -1,0 +1,7 @@
+フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明
+id,bigint,YES,,YES,NO,YES,ユーザーID
+email,varchar(255),NO,,NO,YES,NO,メールアドレス（ログイン用）
+name,varchar(100),NO,,NO,NO,NO,ユーザー表示名
+password_hash,varchar(255),NO,,NO,NO,NO,パスワードハッシュ（bcrypt等）
+created_at,timestamp,YES,,NO,NO,NO,アカウント作成日時
+updated_at,timestamp,YES,,NO,NO,NO,最終更新日時
