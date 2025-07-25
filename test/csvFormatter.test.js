@@ -84,7 +84,7 @@ describe('CSV Formatter', () => {
       const field = {
         name: 'description',
         type: { type_name: 'text' },
-        note: 'User\'s description'
+        note: "User's description"
       };
 
       const result = fieldToRowData(field);
