@@ -1,12 +1,11 @@
-const { 
-  getFieldDataType, 
-  fieldToRowData, 
-  convertTableToCSV, 
-  convertTableListToCSV 
+const {
+  getFieldDataType,
+  fieldToRowData,
+  convertTableToCSV,
+  convertTableListToCSV
 } = require('../pkg/csvFormatter');
 
 describe('CSV Formatter', () => {
-  
   describe('getFieldDataType', () => {
     test('should return simple type name', () => {
       const field = { type: { type_name: 'bigint' } };
@@ -50,7 +49,7 @@ describe('CSV Formatter', () => {
       expect(result).toEqual([
         'id',
         'bigint',
-        'NO',  // not_null: true means NO nulls allowed
+        'NO', // not_null: true means NO nulls allowed
         '',
         'YES', // pk: true
         'NO',
@@ -90,7 +89,7 @@ describe('CSV Formatter', () => {
 
       const result = fieldToRowData(field);
 
-      expect(result[7]).toBe("Users description"); // quotes removed
+      expect(result[7]).toBe('Users description'); // quotes removed
     });
   });
 
@@ -119,7 +118,9 @@ describe('CSV Formatter', () => {
       const result = convertTableToCSV(table);
       const lines = result.split('\n');
 
-      expect(lines[0]).toBe('フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明');
+      expect(lines[0]).toBe(
+        'フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明'
+      );
       expect(lines[1]).toBe('id,bigint,NO,,YES,NO,YES,ID');
       expect(lines[2]).toBe('name,varchar(100),NO,,NO,NO,NO,名前');
     });
@@ -134,7 +135,9 @@ describe('CSV Formatter', () => {
       const lines = result.split('\n');
 
       expect(lines).toHaveLength(1);
-      expect(lines[0]).toBe('フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明');
+      expect(lines[0]).toBe(
+        'フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明'
+      );
     });
   });
 

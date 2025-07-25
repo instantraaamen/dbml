@@ -13,21 +13,17 @@ const CSV_CONSTANTS = {
 // テーブルCSVのヘッダー定義
 const TABLE_CSV_HEADERS = [
   'フィールド名',
-  'データ型', 
-  'NULL許可', 
-  'デフォルト値', 
-  '主キー', 
-  'ユニーク', 
-  '自動増分', 
+  'データ型',
+  'NULL許可',
+  'デフォルト値',
+  '主キー',
+  'ユニーク',
+  '自動増分',
   '説明'
 ];
 
 // テーブル一覧CSVのヘッダー定義
-const TABLE_LIST_CSV_HEADERS = [
-  'テーブル名',
-  '説明',
-  'フィールド数'
-];
+const TABLE_LIST_CSV_HEADERS = ['テーブル名', '説明', 'フィールド数'];
 
 // YES/NO値の定数
 const BOOLEAN_VALUES = {
@@ -37,8 +33,8 @@ const BOOLEAN_VALUES = {
 
 // NULL許可の値（逆論理）
 const NULL_ALLOWED = {
-  ALLOWED: 'YES',    // NULL許可
-  NOT_ALLOWED: 'NO'  // NULL不許可
+  ALLOWED: 'YES', // NULL許可
+  NOT_ALLOWED: 'NO' // NULL不許可
 };
 
 // ファイル名の定数

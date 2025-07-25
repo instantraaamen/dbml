@@ -1,0 +1,5 @@
+フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明
+id,bigint,YES,,YES,NO,YES,カテゴリID
+name,varchar(100),NO,,NO,YES,NO,カテゴリ名
+description,text,YES,,NO,NO,NO,カテゴリ説明
+parent_id,bigint,YES,,NO,NO,NO,親カテゴリID（階層構造用）

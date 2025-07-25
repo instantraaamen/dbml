@@ -1,0 +1,8 @@
+フィールド名,データ型,NULL許可,デフォルト値,主キー,ユニーク,自動増分,説明
+id,bigint,YES,,YES,NO,YES,商品ID
+name,varchar(200),NO,,NO,NO,NO,商品名
+price,"decimal(10,2)",NO,,NO,NO,NO,価格（税込み）
+description,text,YES,,NO,NO,NO,商品の詳細説明
+stock_quantity,int,YES,,NO,NO,NO,在庫数
+category_id,bigint,NO,,NO,NO,NO,カテゴリID
+created_at,timestamp,YES,,NO,NO,NO,商品登録日時
