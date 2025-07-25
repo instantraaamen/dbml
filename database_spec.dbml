@@ -54,9 +54,9 @@ Table products {
   Note: '商品情報テーブル - 商品の基本情報と在庫管理'
 }
 
-// 関係性の定義
-Ref: categories.parent_id > categories.id [delete: set null, update: cascade]
-Ref: products.category_id > categories.id [delete: restrict, update: cascade]
+// 関係性の定義（テーブル定義内のrefで既に定義済みのためコメントアウト）
+// Ref: categories.parent_id > categories.id [delete: set null, update: cascade]
+// Ref: products.category_id > categories.id [delete: restrict, update: cascade]
 
 // 将来の拡張用テーブル（コメントアウト）
 /*
