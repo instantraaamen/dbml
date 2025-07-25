@@ -1,7 +1,6 @@
 const { escapeCSV, arrayToCSVRow, dataToCSV } = require('../pkg/csvUtils');
 
 describe('CSV Utils', () => {
-  
   describe('escapeCSV', () => {
     test('should return empty string for null/undefined', () => {
       expect(escapeCSV(null)).toBe('');
@@ -37,8 +36,9 @@ describe('CSV Utils', () => {
     });
 
     test('should escape values in array', () => {
-      expect(arrayToCSVRow(['hello,world', 'simple', 'say "hi"']))
-        .toBe('"hello,world",simple,"say ""hi"""');
+      expect(arrayToCSVRow(['hello,world', 'simple', 'say "hi"'])).toBe(
+        '"hello,world",simple,"say ""hi"""'
+      );
     });
 
     test('should handle empty array', () => {
@@ -53,7 +53,7 @@ describe('CSV Utils', () => {
         ['John', '30', 'Tokyo'],
         ['Jane', '25', 'Osaka']
       ];
-      
+
       const expected = 'Name,Age,City\nJohn,30,Tokyo\nJane,25,Osaka';
       expect(dataToCSV(data)).toBe(expected);
     });
@@ -72,7 +72,7 @@ describe('CSV Utils', () => {
         ['John', 'Hello, World!'],
         ['Jane', 'Say "Hi"']
       ];
-      
+
       const expected = 'Name,Message\nJohn,"Hello, World!"\nJane,"Say ""Hi"""';
       expect(dataToCSV(data)).toBe(expected);
     });

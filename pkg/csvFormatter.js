@@ -4,11 +4,11 @@
  */
 
 const { dataToCSV } = require('./csvUtils');
-const { 
-  TABLE_CSV_HEADERS, 
-  TABLE_LIST_CSV_HEADERS, 
-  BOOLEAN_VALUES, 
-  NULL_ALLOWED 
+const {
+  TABLE_CSV_HEADERS,
+  TABLE_LIST_CSV_HEADERS,
+  BOOLEAN_VALUES,
+  NULL_ALLOWED
 } = require('./constants');
 
 /**
@@ -19,11 +19,11 @@ const {
 function getFieldDataType(field) {
   const typeName = field.type.type_name;
   const args = field.type.args;
-  
+
   if (args && Array.isArray(args) && args.length > 0) {
     return `${typeName}(${args.join(',')})`;
   }
-  
+
   return typeName;
 }
 
@@ -52,12 +52,12 @@ function fieldToRowData(field) {
  */
 function convertTableToCSV(table) {
   const rows = [TABLE_CSV_HEADERS];
-  
+
   // フィールドデータを追加
-  table.fields.forEach(field => {
+  table.fields.forEach((field) => {
     rows.push(fieldToRowData(field));
   });
-  
+
   return dataToCSV(rows);
 }
 
@@ -68,16 +68,12 @@ function convertTableToCSV(table) {
  */
 function convertTableListToCSV(tables) {
   const rows = [TABLE_LIST_CSV_HEADERS];
-  
-  tables.forEach(table => {
+
+  tables.forEach((table) => {
     const note = table.note ? table.note.replace(/'/g, '') : '';
-    rows.push([
-      table.name,
-      note,
-      table.fields.length
-    ]);
+    rows.push([table.name, note, table.fields.length]);
   });
-  
+
   return dataToCSV(rows);
 }
 

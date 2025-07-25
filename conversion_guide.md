@@ -1,11 +1,13 @@
 # DBML変換ガイド
 
 ## 概要
+
 DBMLファイルを様々な形式に変換する方法を紹介します。
 
 ## 1. セットアップ
 
 ### CLI ツールのインストール
+
 ```bash
 npm install -g @dbml/cli
 ```
@@ -13,16 +15,19 @@ npm install -g @dbml/cli
 ## 2. SQL DDL生成
 
 ### MySQL
+
 ```bash
 dbml2sql database_spec.dbml --mysql > schema.sql
 ```
 
 ### PostgreSQL
+
 ```bash
 dbml2sql database_spec.dbml --postgres > schema.sql
 ```
 
 ### SQLite
+
 ```bash
 dbml2sql database_spec.dbml --sqlite > schema.sql
 ```
@@ -30,11 +35,13 @@ dbml2sql database_spec.dbml --sqlite > schema.sql
 ## 3. ドキュメント生成
 
 ### Markdown形式
+
 ```bash
 dbml2docs database_spec.dbml --format md > database_docs.md
 ```
 
 ### HTML形式
+
 ```bash
 dbml2docs database_spec.dbml --format html > database_docs.html
 ```
@@ -42,11 +49,13 @@ dbml2docs database_spec.dbml --format html > database_docs.html
 ## 4. 他の形式への変換
 
 ### Prisma Schema
+
 ```bash
 dbml2prisma database_spec.dbml > schema.prisma
 ```
 
 ### JSON形式
+
 ```bash
 dbml2json database_spec.dbml > database_spec.json
 ```
@@ -54,12 +63,14 @@ dbml2json database_spec.dbml > database_spec.json
 ## 5. ER図の生成・表示
 
 ### Web上でER図を表示
+
 1. https://dbdiagram.io にアクセス
 2. DBMLファイルの内容をコピー&ペースト
 3. 自動でER図が生成される
 4. ブラウザのPDF出力機能でPDF保存可能
 
 ### インタラクティブドキュメント
+
 1. https://dbdocs.io にアクセス
 2. DBMLファイルをアップロード
 3. 美しいドキュメントサイトが生成される
@@ -67,6 +78,7 @@ dbml2json database_spec.dbml > database_spec.json
 ## 6. プログラマティックな変換
 
 ### Node.js での変換例
+
 ```javascript
 const { Parser, ModelExporter } = require('@dbml/core');
 
@@ -89,6 +101,7 @@ fs.writeFileSync('schema_postgres.sql', postgresSchema);
 ## 7. 変換後の活用例
 
 ### DDLの実行
+
 ```bash
 # MySQLの場合
 mysql -u username -p database_name < schema.sql
@@ -98,6 +111,7 @@ psql -U username -d database_name -f schema_postgres.sql
 ```
 
 ### CI/CDでの自動化
+
 ```yaml
 # GitHub Actions例
 name: Generate Schema

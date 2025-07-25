@@ -17,7 +17,7 @@ function parseDBMLFile(filePath) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`${ERROR_MESSAGES.FILE_NOT_FOUND}: ${filePath}`);
   }
-  
+
   const content = fs.readFileSync(filePath, 'utf8');
   return parseDBMLContent(content);
 }
@@ -30,11 +30,11 @@ function parseDBMLFile(filePath) {
  */
 function parseDBMLContent(content) {
   const database = Parser.parse(content, 'dbml');
-  
+
   if (!database || !database.schemas || !database.schemas[0]) {
     throw new Error(ERROR_MESSAGES.PARSE_FAILED);
   }
-  
+
   return database.schemas[0];
 }
 

@@ -13,9 +13,11 @@ const { CSV_CONSTANTS } = require('./constants');
 function escapeCSV(value) {
   if (value === null || value === undefined) return '';
   const str = String(value);
-  if (str.includes(CSV_CONSTANTS.DELIMITER) || 
-      str.includes(CSV_CONSTANTS.QUOTE) || 
-      str.includes(CSV_CONSTANTS.NEWLINE)) {
+  if (
+    str.includes(CSV_CONSTANTS.DELIMITER) ||
+    str.includes(CSV_CONSTANTS.QUOTE) ||
+    str.includes(CSV_CONSTANTS.NEWLINE)
+  ) {
     return `${CSV_CONSTANTS.QUOTE}${str.replace(/"/g, CSV_CONSTANTS.DOUBLE_QUOTE)}${CSV_CONSTANTS.QUOTE}`;
   }
   return str;
@@ -36,7 +38,7 @@ function arrayToCSVRow(array) {
  * @returns {string} CSV文字列
  */
 function dataToCSV(data) {
-  return data.map(row => arrayToCSVRow(row)).join(CSV_CONSTANTS.NEWLINE);
+  return data.map((row) => arrayToCSVRow(row)).join(CSV_CONSTANTS.NEWLINE);
 }
 
 module.exports = {

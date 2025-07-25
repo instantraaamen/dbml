@@ -19,15 +19,15 @@ function convertDBMLToExcel(dbmlFile, outputDir = DEFAULT_OUTPUT_DIR) {
   // 1. DBMLファイルを解析
   const schema = parseDBMLFile(dbmlFile);
   const tables = getTables(schema);
-  
+
   // 2. 各テーブルのCSVファイルを作成
   const createdFiles = writeTableCSVFiles(outputDir, tables, convertTableToCSV);
-  
+
   // 3. テーブル一覧CSVを作成
   const tableListCSV = convertTableListToCSV(tables);
   const listFilePath = path.join(outputDir, FILE_NAMES.TABLE_LIST);
   writeCSVFile(listFilePath, tableListCSV);
-  
+
   // 4. 結果を返す
   return {
     tablesCount: tables.length,

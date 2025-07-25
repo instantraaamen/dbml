@@ -33,15 +33,15 @@ function writeCSVFile(filePath, csvContent) {
  */
 function writeMultipleCSVFiles(outputDir, csvFiles) {
   ensureDirectoryExists(outputDir);
-  
+
   const createdFiles = [];
-  
+
   Object.entries(csvFiles).forEach(([fileName, csvContent]) => {
     const filePath = path.join(outputDir, fileName);
     writeCSVFile(filePath, csvContent);
     createdFiles.push(fileName);
   });
-  
+
   return createdFiles;
 }
 
@@ -54,18 +54,18 @@ function writeMultipleCSVFiles(outputDir, csvFiles) {
  */
 function writeTableCSVFiles(outputDir, tables, tableToCSVConverter) {
   ensureDirectoryExists(outputDir);
-  
+
   const createdFiles = [];
-  
-  tables.forEach(table => {
+
+  tables.forEach((table) => {
     const csvContent = tableToCSVConverter(table);
     const fileName = `${table.name}.csv`;
     const filePath = path.join(outputDir, fileName);
-    
+
     writeCSVFile(filePath, csvContent);
     createdFiles.push(fileName);
   });
-  
+
   return createdFiles;
 }
 
