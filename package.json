@@ -1,0 +1,35 @@
+{
+  "name": "dbml-to-excel-converter",
+  "version": "1.0.0",
+  "description": "Convert DBML files to Excel-friendly CSV format",
+  "main": "pkg/dbmlToExcel.js",
+  "scripts": {
+    "convert": "node pkg/cli.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "dbml",
+    "excel",
+    "csv",
+    "database",
+    "converter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@dbml/core": "^3.6.2"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "pkg/**/*.js",
+      "!pkg/cli.js"
+    ]
+  }
+}
