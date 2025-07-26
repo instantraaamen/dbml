@@ -27,21 +27,20 @@ Table products {
 `;
 
 describe('DBML to Excel Integration Tests', () => {
-  beforeEach(() => {
-    // テスト用ディレクトリを作成
-    if (!fs.existsSync(TEST_DIR)) {
-      fs.mkdirSync(TEST_DIR, { recursive: true });
-    }
-  });
-
-  afterEach(() => {
-    // テスト用ファイルをクリーンアップ
-    if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
-    }
-  });
-
   describe('convertDBMLToExcel', () => {
+    beforeEach(() => {
+      // テスト用ディレクトリを作成
+      if (!fs.existsSync(TEST_DIR)) {
+        fs.mkdirSync(TEST_DIR, { recursive: true });
+      }
+    });
+
+    afterEach(() => {
+      // テスト用ファイルをクリーンアップ
+      if (fs.existsSync(TEST_DIR)) {
+        fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      }
+    });
     test('should convert DBML file to CSV files', () => {
       const testFile = path.join(TEST_DIR, 'test.dbml');
       fs.writeFileSync(testFile, TEST_DBML_CONTENT);
@@ -110,6 +109,20 @@ describe('DBML to Excel Integration Tests', () => {
   });
 
   describe('CSV content validation', () => {
+    beforeEach(() => {
+      // テスト用ディレクトリを作成
+      if (!fs.existsSync(TEST_DIR)) {
+        fs.mkdirSync(TEST_DIR, { recursive: true });
+      }
+    });
+
+    afterEach(() => {
+      // テスト用ファイルをクリーンアップ
+      if (fs.existsSync(TEST_DIR)) {
+        fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      }
+    });
+
     test('should generate valid CSV content', () => {
       const testFile = path.join(TEST_DIR, 'test.dbml');
       fs.writeFileSync(testFile, TEST_DBML_CONTENT);
