@@ -134,10 +134,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // CI環境での安定化（全プラットフォーム対応）
-      const isCI = process.env.CI === 'true';
-      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
-
+      // 最小限の遅延でファイルアクセス安定化
+      const delay = process.platform === 'win32' ? 75 : 40;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       // Excelファイルを読み込んで内容を確認（エラーハンドリング強化）
@@ -172,10 +170,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // CI環境での安定化（全プラットフォーム対応）
-      const isCI = process.env.CI === 'true';
-      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
-
+      // 最小限の遅延でファイルアクセス安定化
+      const delay = process.platform === 'win32' ? 75 : 40;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       const workbook = new ExcelJS.Workbook();
@@ -209,10 +205,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // CI環境での安定化（全プラットフォーム対応）
-      const isCI = process.env.CI === 'true';
-      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
-
+      // 最小限の遅延でファイルアクセス安定化
+      const delay = process.platform === 'win32' ? 75 : 40;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       const workbook = new ExcelJS.Workbook();
@@ -239,10 +233,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // CI環境での安定化（全プラットフォーム対応）
-      const isCI = process.env.CI === 'true';
-      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
-
+      // 最小限の遅延でファイルアクセス安定化
+      const delay = process.platform === 'win32' ? 75 : 40;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       const workbook = new ExcelJS.Workbook();

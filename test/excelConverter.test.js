@@ -75,10 +75,8 @@ describe('Excel Converter Integration Tests', () => {
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
 
-      // CI環境での安定化（全プラットフォーム対応）
-      const isCI = process.env.CI === 'true';
-      const delay = process.platform === 'win32' ? 300 : isCI ? 200 : 100;
-
+      // 最小限の遅延でファイルアクセス安定化
+      const delay = process.platform === 'win32' ? 100 : 50;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       // 生成されたExcelファイルを読み込んで検証（エラーハンドリング強化）

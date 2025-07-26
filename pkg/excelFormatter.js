@@ -51,10 +51,8 @@ class ExcelFormatter {
       throw new Error(`Failed to write Excel file: ${error.message}`);
     }
 
-    // 全環境での書き込み完了確認（CI環境での安定性向上）
-    const isCI = process.env.CI === 'true';
-    const delay = process.platform === 'win32' ? 200 : isCI ? 100 : 50;
-
+    // ファイル操作完了確認（適切なバランス）
+    const delay = process.platform === 'win32' ? 100 : 50;
     await new Promise((resolve) => setTimeout(resolve, delay));
 
     // ファイル存在とサイズ確認
