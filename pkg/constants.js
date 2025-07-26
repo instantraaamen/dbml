@@ -39,7 +39,7 @@ const NULL_ALLOWED = {
 
 // ファイル名の定数
 const FILE_NAMES = {
-  TABLE_LIST: '_テーブル一覧.csv'
+  TABLE_LIST: '_table_list.csv'
 };
 
 // デフォルトディレクトリ

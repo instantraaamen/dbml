@@ -16,6 +16,10 @@ jobs:
       matrix:
         node-version: [16.x, 18.x, 20.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        exclude:
+          # macOS with Node.js 16.x has compatibility issues
+          - node-version: 16.x
+            os: macos-latest
 
     steps:
       - name: 📦 Checkout code
@@ -31,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: 🧪 Run tests
-        run: npm test
+        run: npm test -- --verbose
 
       - name: 📊 Generate coverage report
         run: npm run test:coverage

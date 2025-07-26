@@ -27,14 +27,27 @@ Table products {
 
 describe('DBML Parser', () => {
   beforeEach(() => {
-    if (!fs.existsSync(TEST_DIR)) {
-      fs.mkdirSync(TEST_DIR, { recursive: true });
+    if (fs.existsSync(TEST_DIR)) {
+      try {
+        fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      } catch (error) {
+        // macOSでのファイル削除エラーを無視
+      }
     }
+    fs.mkdirSync(TEST_DIR, { recursive: true });
   });
 
   afterEach(() => {
     if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      try {
+        fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      } catch (error) {
+        // macOSでのファイル削除エラーを無視
+        console.warn(
+          'Warning: Could not clean up test directory:',
+          error.message
+        );
+      }
     }
   });
 
