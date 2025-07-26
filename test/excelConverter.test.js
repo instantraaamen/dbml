@@ -8,8 +8,11 @@ const TEST_DIR = path.join(__dirname, 'temp');
 
 // ファイル作成完了待機のヘルパー関数
 async function waitForFileReady(filePath) {
-  const maxRetries = 15;
-  const baseDelay = 20;
+  // CI環境の検出とそれに応じた設定調整
+  const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  const maxRetries = isCI ? 30 : 15;
+  const baseDelay = isCI ? 40 : 20;
+  const maxDelay = isCI ? 400 : 200;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {
@@ -23,11 +26,11 @@ async function waitForFileReady(filePath) {
       }
     }
 
-    const delay = Math.min(baseDelay * Math.pow(1.4, attempt), 200);
+    const delay = Math.min(baseDelay * Math.pow(1.4, attempt), maxDelay);
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  throw new Error(`File not ready after ${maxRetries} attempts: ${filePath}`);
+  throw new Error(`File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI})`);
 }
 
 // テスト用のDBMLファイル
