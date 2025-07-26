@@ -47,6 +47,16 @@ class ExcelFormatter {
     // ファイル保存
     await this.workbook.xlsx.writeFile(outputPath);
 
+    // Windows環境での書き込み完了確認
+    if (process.platform === 'win32') {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // ファイル存在とサイズ確認でエラー回避
+      if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size === 0) {
+        throw new Error('Excel file was not created properly on Windows');
+      }
+    }
+
     return {
       filePath: outputPath,
       tablesCount: dbmlData.tables.length,

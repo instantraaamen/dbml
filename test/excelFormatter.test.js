@@ -134,6 +134,11 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
+      // Windows環境での安定化
+      if (process.platform === 'win32') {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+
       // Excelファイルを読み込んで内容を確認
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(outputPath);
@@ -160,6 +165,11 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
+      // Windows環境での安定化
+      if (process.platform === 'win32') {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(outputPath);
 
@@ -185,6 +195,11 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
+      // Windows環境での安定化
+      if (process.platform === 'win32') {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(outputPath);
 
@@ -202,6 +217,11 @@ describe('ExcelFormatter', () => {
       const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
+
+      // Windows環境での安定化
+      if (process.platform === 'win32') {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
 
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(outputPath);

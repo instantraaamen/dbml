@@ -75,6 +75,11 @@ describe('Excel Converter Integration Tests', () => {
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
 
+      // Windows環境でのファイルアクセス安定化のための待機
+      if (process.platform === 'win32') {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+
       // 生成されたExcelファイルを読み込んで検証
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(outputExcelFile);
