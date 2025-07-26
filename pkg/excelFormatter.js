@@ -20,12 +20,6 @@ class ExcelFormatter {
   async formatToExcel(dbmlData, outputPath) {
     this._validateInputs(dbmlData, outputPath);
 
-    // 出力ディレクトリの作成
-    const outputDir = path.dirname(outputPath);
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
     // ワークブック作成
     this.workbook = new ExcelJS.Workbook();
     this.workbook.creator = 'DBML to Excel Converter';

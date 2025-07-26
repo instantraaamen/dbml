@@ -5,7 +5,6 @@ const { ExcelFormatter } = require('../pkg/excelFormatter');
 
 // テスト用の一時ディレクトリ
 const TEST_DIR = path.join(__dirname, 'temp');
-const TEST_OUTPUT_DIR = path.join(TEST_DIR, 'output');
 
 // ファイル作成完了待機のヘルパー関数
 async function waitForFileReady(filePath) {
@@ -127,7 +126,7 @@ describe('ExcelFormatter', () => {
   describe('formatToExcel', () => {
     test('should create Excel file with correct structure', async () => {
       const formatter = new ExcelFormatter();
-      const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       const result = await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
@@ -141,20 +140,18 @@ describe('ExcelFormatter', () => {
       expect(fs.existsSync(outputPath)).toBe(true);
     });
 
-    test('should create output directory if it does not exist', async () => {
+    test('should create Excel file in specified directory', async () => {
       const formatter = new ExcelFormatter();
-      const nonExistentDir = path.join(TEST_DIR, 'new_output');
-      const outputPath = path.join(nonExistentDir, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      expect(fs.existsSync(nonExistentDir)).toBe(true);
       expect(fs.existsSync(outputPath)).toBe(true);
     });
 
     test('should create overview worksheet with table summary', async () => {
       const formatter = new ExcelFormatter();
-      const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
@@ -189,7 +186,7 @@ describe('ExcelFormatter', () => {
 
     test('should create individual worksheets for each table', async () => {
       const formatter = new ExcelFormatter();
-      const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
@@ -223,7 +220,7 @@ describe('ExcelFormatter', () => {
 
     test('should apply proper styling to headers', async () => {
       const formatter = new ExcelFormatter();
-      const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
@@ -250,7 +247,7 @@ describe('ExcelFormatter', () => {
 
     test('should auto-adjust column widths', async () => {
       const formatter = new ExcelFormatter();
-      const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
@@ -278,7 +275,7 @@ describe('ExcelFormatter', () => {
   describe('error handling', () => {
     test('should throw error for invalid data', async () => {
       const formatter = new ExcelFormatter();
-      const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
+      const outputPath = path.join(TEST_DIR, 'test.xlsx');
 
       await expect(formatter.formatToExcel(null, outputPath)).rejects.toThrow(
         'Invalid DBML data provided'

@@ -134,17 +134,16 @@ describe('Excel Converter Integration Tests', () => {
       ).rejects.toThrow('Excel変換に失敗しました');
     });
 
-    test('should create output directory if it does not exist', async () => {
+    test('should create Excel file in same directory as input', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
-      const outputDir = path.join(TEST_DIR, 'new_dir');
-      const outputExcelFile = path.join(outputDir, 'output.xlsx');
+      const outputExcelFile = path.join(TEST_DIR, 'test.xlsx');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
 
-      expect(fs.existsSync(outputDir)).toBe(true);
       expect(fs.existsSync(outputExcelFile)).toBe(true);
+      expect(path.dirname(outputExcelFile)).toBe(path.dirname(testDbmlFile));
     });
   });
 });

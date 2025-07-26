@@ -97,7 +97,9 @@ function parseArguments(args) {
     if (options.format === 'xlsx') {
       options.outputPath = options.inputFile.replace(/\.dbml$/, '') + '.xlsx';
     } else {
-      options.outputPath = './excel';
+      // CSVファイル用のディレクトリ名を入力ファイルベースに設定
+      const baseName = options.inputFile.replace(/\.dbml$/, '');
+      options.outputPath = baseName + '_csv';
     }
   }
 
