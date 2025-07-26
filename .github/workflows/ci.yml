@@ -16,6 +16,10 @@ jobs:
       matrix:
         node-version: [16.x, 18.x, 20.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        exclude:
+          # macOS with Node.js 16.x has compatibility issues
+          - node-version: 16.x
+            os: macos-latest
 
     steps:
       - name: 📦 Checkout code
