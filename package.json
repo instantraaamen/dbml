@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "Convert DBML files to Excel-friendly CSV format",
   "main": "pkg/dbmlToExcel.js",
+  "bin": {
+    "dbml-to-excel": "pkg/cli.js"
+  },
+  "files": [
+    "pkg/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "convert": "node pkg/cli.js",
     "test": "jest",
@@ -11,23 +19,37 @@
     "lint": "eslint pkg/ test/",
     "lint:fix": "eslint pkg/ test/ --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm test && npm run lint"
   },
   "keywords": [
     "dbml",
     "excel",
     "csv",
     "database",
-    "converter"
+    "converter",
+    "cli",
+    "database-modeling",
+    "schema",
+    "export"
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/instantraaamen/dbml.git"
+  },
+  "homepage": "https://github.com/instantraaamen/dbml#readme",
+  "bugs": {
+    "url": "https://github.com/instantraaamen/dbml/issues"
+  },
   "dependencies": {
-    "@dbml/core": "^3.6.2"
+    "@dbml/core": "^3.6.2",
+    "exceljs": "^4.4.0"
   },
   "devDependencies": {
-    "jest": "^29.0.0",
     "eslint": "^8.0.0",
+    "jest": "^29.0.0",
     "prettier": "^3.0.0"
   },
   "jest": {

@@ -1,0 +1,55 @@
+# Test files
+test/
+*.test.js
+coverage/
+
+# Development files
+.github/
+.eslintrc.js
+.prettierrc.js
+.vscode/
+.idea/
+
+# Documentation files (keep only README.md)
+docs/
+*.md
+!README.md
+
+# Example files
+example/
+examples/
+sample/
+samples/
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Environment files
+.env*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# Claude Code
+.claude/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Generated files (examples)
+excel/
+*.sql

@@ -17,6 +17,18 @@ Convert DBML (Database Markup Language) files to Excel-friendly CSV format with 
 
 ## 📦 Installation
 
+### NPM Package (Recommended)
+
+```bash
+# Install globally for CLI usage
+npm install -g dbml-to-excel-converter
+
+# Or install locally in your project
+npm install dbml-to-excel-converter
+```
+
+### From Source
+
 ```bash
 # Clone the repository
 git clone https://github.com/instantraaamen/dbml.git
@@ -30,18 +42,30 @@ npm install
 
 ### Command Line Interface
 
+#### Global Installation
+
 ```bash
 # Convert DBML file to CSV
-npm run convert <input.dbml> <output-directory>
+dbml-to-excel <input.dbml> <output-directory>
 
 # Example
-npm run convert database_spec.dbml output/
+dbml-to-excel database_spec.dbml output/
+```
+
+#### Local Installation
+
+```bash
+# Using npx
+npx dbml-to-excel <input.dbml> <output-directory>
+
+# Using npm script (from source)
+npm run convert <input.dbml> <output-directory>
 ```
 
 ### Programmatic Usage
 
 ```javascript
-const { convertDBMLToExcel } = require('./pkg/dbmlToExcel');
+const { convertDBMLToExcel } = require('dbml-to-excel-converter');
 
 const result = convertDBMLToExcel('input.dbml', 'output/');
 console.log(`Converted ${result.tablesCount} tables`);
