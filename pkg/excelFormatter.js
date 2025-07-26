@@ -216,7 +216,7 @@ class ExcelFormatter {
   async _waitForFileCreation(outputPath) {
     const maxRetries = 20;
     const baseDelay = 25;
-    
+
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
       if (fs.existsSync(outputPath)) {
@@ -230,17 +230,19 @@ class ExcelFormatter {
           // statSync失敗は無視して再試行
         }
       }
-      
+
       // 指数的バックオフで待機（最大250ms）
       const delay = Math.min(baseDelay * Math.pow(1.5, attempt), 250);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
-    
+
     // 最終確認
     if (!fs.existsSync(outputPath)) {
-      throw new Error(`Excel file was not created after ${maxRetries} attempts: ${outputPath}`);
+      throw new Error(
+        `Excel file was not created after ${maxRetries} attempts: ${outputPath}`
+      );
     }
-    
+
     const stats = fs.statSync(outputPath);
     if (stats.size === 0) {
       throw new Error(`Excel file was created but is empty: ${outputPath}`);

@@ -11,7 +11,7 @@ const TEST_OUTPUT_DIR = path.join(TEST_DIR, 'output');
 async function waitForFileReady(filePath) {
   const maxRetries = 15;
   const baseDelay = 20;
-  
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {
       try {
@@ -23,11 +23,11 @@ async function waitForFileReady(filePath) {
         // statSync失敗は無視して再試行
       }
     }
-    
+
     const delay = Math.min(baseDelay * Math.pow(1.4, attempt), 200);
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
-  
+
   throw new Error(`File not ready after ${maxRetries} attempts: ${filePath}`);
 }
 
