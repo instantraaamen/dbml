@@ -7,6 +7,30 @@ const { ExcelFormatter } = require('../pkg/excelFormatter');
 const TEST_DIR = path.join(__dirname, 'temp');
 const TEST_OUTPUT_DIR = path.join(TEST_DIR, 'output');
 
+// ファイル作成完了待機のヘルパー関数
+async function waitForFileReady(filePath) {
+  const maxRetries = 15;
+  const baseDelay = 20;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    if (fs.existsSync(filePath)) {
+      try {
+        const stats = fs.statSync(filePath);
+        if (stats.size > 0) {
+          return;
+        }
+      } catch (error) {
+        // statSync失敗は無視して再試行
+      }
+    }
+    
+    const delay = Math.min(baseDelay * Math.pow(1.4, attempt), 200);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+  
+  throw new Error(`File not ready after ${maxRetries} attempts: ${filePath}`);
+}
+
 // テスト用のDBMLデータ
 const TEST_DBML_DATA = {
   tables: [
@@ -134,9 +158,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // 最小限の遅延でファイルアクセス安定化
-      const delay = process.platform === 'win32' ? 75 : 40;
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputPath);
 
       // Excelファイルを読み込んで内容を確認（エラーハンドリング強化）
       const workbook = new ExcelJS.Workbook();
@@ -170,9 +193,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // 最小限の遅延でファイルアクセス安定化
-      const delay = process.platform === 'win32' ? 75 : 40;
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputPath);
 
       const workbook = new ExcelJS.Workbook();
       try {
@@ -205,9 +227,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // 最小限の遅延でファイルアクセス安定化
-      const delay = process.platform === 'win32' ? 75 : 40;
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputPath);
 
       const workbook = new ExcelJS.Workbook();
       try {
@@ -233,9 +254,8 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // 最小限の遅延でファイルアクセス安定化
-      const delay = process.platform === 'win32' ? 75 : 40;
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputPath);
 
       const workbook = new ExcelJS.Workbook();
       try {

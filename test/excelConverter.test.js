@@ -6,6 +6,30 @@ const { convertDBMLToExcelFile } = require('../pkg/excelConverter');
 // テスト用の一時ディレクトリ
 const TEST_DIR = path.join(__dirname, 'temp');
 
+// ファイル作成完了待機のヘルパー関数
+async function waitForFileReady(filePath) {
+  const maxRetries = 15;
+  const baseDelay = 20;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    if (fs.existsSync(filePath)) {
+      try {
+        const stats = fs.statSync(filePath);
+        if (stats.size > 0) {
+          return;
+        }
+      } catch (error) {
+        // statSync失敗は無視して再試行
+      }
+    }
+    
+    const delay = Math.min(baseDelay * Math.pow(1.4, attempt), 200);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+  
+  throw new Error(`File not ready after ${maxRetries} attempts: ${filePath}`);
+}
+
 // テスト用のDBMLファイル
 const TEST_DBML_CONTENT = `
 Table users {
@@ -75,9 +99,8 @@ describe('Excel Converter Integration Tests', () => {
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
 
-      // 最小限の遅延でファイルアクセス安定化
-      const delay = process.platform === 'win32' ? 100 : 50;
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputExcelFile);
 
       // 生成されたExcelファイルを読み込んで検証（エラーハンドリング強化）
       const workbook = new ExcelJS.Workbook();

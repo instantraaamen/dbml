@@ -51,19 +51,8 @@ class ExcelFormatter {
       throw new Error(`Failed to write Excel file: ${error.message}`);
     }
 
-    // ファイル操作完了確認（適切なバランス）
-    const delay = process.platform === 'win32' ? 100 : 50;
-    await new Promise((resolve) => setTimeout(resolve, delay));
-
-    // ファイル存在とサイズ確認
-    if (!fs.existsSync(outputPath)) {
-      throw new Error(`Excel file was not created: ${outputPath}`);
-    }
-
-    const stats = fs.statSync(outputPath);
-    if (stats.size === 0) {
-      throw new Error(`Excel file was created but is empty: ${outputPath}`);
-    }
+    // ファイル作成完了の確実な確認（リトライ機能付き）
+    await this._waitForFileCreation(outputPath);
 
     return {
       filePath: outputPath,
@@ -217,6 +206,44 @@ class ExcelFormatter {
           right: { style: 'thin' }
         };
       }
+    }
+  }
+
+  /**
+   * ファイル作成完了の確実な待機（リトライ機能付き）
+   * @private
+   */
+  async _waitForFileCreation(outputPath) {
+    const maxRetries = 20;
+    const baseDelay = 25;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      // ファイル存在確認
+      if (fs.existsSync(outputPath)) {
+        try {
+          const stats = fs.statSync(outputPath);
+          if (stats.size > 0) {
+            // ファイルが存在し、サイズも0より大きい
+            return;
+          }
+        } catch (error) {
+          // statSync失敗は無視して再試行
+        }
+      }
+      
+      // 指数的バックオフで待機（最大250ms）
+      const delay = Math.min(baseDelay * Math.pow(1.5, attempt), 250);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+    
+    // 最終確認
+    if (!fs.existsSync(outputPath)) {
+      throw new Error(`Excel file was not created after ${maxRetries} attempts: ${outputPath}`);
+    }
+    
+    const stats = fs.statSync(outputPath);
+    if (stats.size === 0) {
+      throw new Error(`Excel file was created but is empty: ${outputPath}`);
     }
   }
 }
