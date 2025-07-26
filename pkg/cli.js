@@ -31,12 +31,17 @@ async function main() {
 
   try {
     let result;
-    
+
     if (options.format === 'xlsx') {
-      result = await convertDBMLToExcelFile(options.inputFile, options.outputPath);
+      result = await convertDBMLToExcelFile(
+        options.inputFile,
+        options.outputPath
+      );
       console.log('✅ Excel変換完了!');
       console.log(`📄 出力ファイル: ${result.filePath}`);
-      console.log(`📋 ${result.tablesCount}個のテーブルを${result.worksheets.length}シートに変換`);
+      console.log(
+        `📋 ${result.tablesCount}個のテーブルを${result.worksheets.length}シートに変換`
+      );
       console.log('💡 Excelファイルを開いてご利用ください');
     } else {
       result = convertDBMLToExcel(options.inputFile, options.outputPath);
@@ -63,7 +68,7 @@ function parseArguments(args) {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     if (arg === '--format') {
       if (i + 1 < args.length) {
         const format = args[i + 1].toLowerCase();

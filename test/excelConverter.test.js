@@ -41,7 +41,10 @@ describe('Excel Converter Integration Tests', () => {
       try {
         fs.rmSync(TEST_DIR, { recursive: true, force: true });
       } catch (error) {
-        console.warn('Warning: Could not clean up test directory:', error.message);
+        console.warn(
+          'Warning: Could not clean up test directory:',
+          error.message
+        );
       }
     }
   });
@@ -50,10 +53,13 @@ describe('Excel Converter Integration Tests', () => {
     test('should convert DBML file to Excel file', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       const outputExcelFile = path.join(TEST_DIR, 'output.xlsx');
-      
+
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
 
-      const result = await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
+      const result = await convertDBMLToExcelFile(
+        testDbmlFile,
+        outputExcelFile
+      );
 
       expect(result.filePath).toBe(outputExcelFile);
       expect(result.tablesCount).toBe(2);
@@ -64,7 +70,7 @@ describe('Excel Converter Integration Tests', () => {
     test('should create valid Excel file with correct content', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       const outputExcelFile = path.join(TEST_DIR, 'output.xlsx');
-      
+
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
@@ -99,7 +105,7 @@ describe('Excel Converter Integration Tests', () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       const outputDir = path.join(TEST_DIR, 'new_dir');
       const outputExcelFile = path.join(outputDir, 'output.xlsx');
-      
+
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);

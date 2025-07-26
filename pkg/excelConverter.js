@@ -8,7 +8,7 @@ const { ExcelFormatter } = require('./excelFormatter');
 
 /**
  * DBMLファイルをExcelファイルに変換
- * @param {string} dbmlFilePath - DBMLファイルのパス  
+ * @param {string} dbmlFilePath - DBMLファイルのパス
  * @param {string} outputPath - 出力Excelファイルのパス
  * @returns {Promise<Object>} 変換結果
  */
@@ -18,11 +18,11 @@ async function convertDBMLToExcelFile(dbmlFilePath, outputPath) {
     const schema = parseDBMLFile(dbmlFilePath);
     const tables = getTables(schema);
     const dbmlData = { tables };
-    
+
     // 2. Excel形式で出力
     const formatter = new ExcelFormatter();
     const result = await formatter.formatToExcel(dbmlData, outputPath);
-    
+
     return result;
   } catch (error) {
     throw new Error(`Excel変換に失敗しました: ${error.message}`);

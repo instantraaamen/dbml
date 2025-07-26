@@ -19,7 +19,7 @@ class ExcelFormatter {
    */
   async formatToExcel(dbmlData, outputPath) {
     this._validateInputs(dbmlData, outputPath);
-    
+
     // 出力ディレクトリの作成
     const outputDir = path.dirname(outputPath);
     if (!fs.existsSync(outputDir)) {
@@ -33,7 +33,7 @@ class ExcelFormatter {
 
     // ワークシート作成
     const worksheets = [];
-    
+
     // 1. テーブル一覧シート
     this._createOverviewWorksheet(dbmlData.tables);
     worksheets.push('テーブル一覧');
@@ -62,8 +62,12 @@ class ExcelFormatter {
     if (!dbmlData || !dbmlData.tables || !Array.isArray(dbmlData.tables)) {
       throw new Error('Invalid DBML data provided');
     }
-    
-    if (!outputPath || typeof outputPath !== 'string' || outputPath.trim() === '') {
+
+    if (
+      !outputPath ||
+      typeof outputPath !== 'string' ||
+      outputPath.trim() === ''
+    ) {
       throw new Error('Invalid output path provided');
     }
   }
@@ -74,26 +78,22 @@ class ExcelFormatter {
    */
   _createOverviewWorksheet(tables) {
     const worksheet = this.workbook.addWorksheet('テーブル一覧');
-    
+
     // ヘッダー設定
     const headers = ['テーブル名', '説明', 'フィールド数'];
     worksheet.addRow(headers);
-    
+
     // ヘッダーのスタイリング（実際のカラム数のみ）
     this._styleHeaderRow(worksheet, 1, headers.length);
 
     // データ行の追加
-    tables.forEach(table => {
-      worksheet.addRow([
-        table.name,
-        table.note || '',
-        table.fields.length
-      ]);
+    tables.forEach((table) => {
+      worksheet.addRow([table.name, table.note || '', table.fields.length]);
     });
 
     // 列幅の自動調整
     this._autoAdjustColumnWidths(worksheet);
-    
+
     // 罫線の追加（データ領域全体）
     this._addDataBorders(worksheet, tables.length + 1, headers.length);
   }
@@ -104,11 +104,11 @@ class ExcelFormatter {
    */
   _createTableWorksheet(table) {
     const worksheet = this.workbook.addWorksheet(table.name);
-    
+
     // ヘッダー設定
     const headers = [
       'フィールド名',
-      'データ型', 
+      'データ型',
       'NULL許可',
       'デフォルト値',
       '主キー',
@@ -117,17 +117,18 @@ class ExcelFormatter {
       '説明'
     ];
     worksheet.addRow(headers);
-    
+
     // ヘッダーのスタイリング（実際のカラム数のみ）
     this._styleHeaderRow(worksheet, 1, headers.length);
 
     // フィールドデータの追加
-    table.fields.forEach(field => {
+    table.fields.forEach((field) => {
       // typeがオブジェクトの場合は文字列表現を使用
-      const typeDisplay = typeof field.type === 'object' && field.type.type_name 
-        ? field.type.type_name 
-        : field.type;
-      
+      const typeDisplay =
+        typeof field.type === 'object' && field.type.type_name
+          ? field.type.type_name
+          : field.type;
+
       worksheet.addRow([
         field.name,
         typeDisplay,
@@ -142,7 +143,7 @@ class ExcelFormatter {
 
     // 列幅の自動調整
     this._autoAdjustColumnWidths(worksheet);
-    
+
     // 罫線の追加（データ領域全体）
     this._addDataBorders(worksheet, table.fields.length + 1, headers.length);
   }
@@ -152,9 +153,9 @@ class ExcelFormatter {
    * @private
    */
   _autoAdjustColumnWidths(worksheet) {
-    worksheet.columns.forEach(column => {
+    worksheet.columns.forEach((column) => {
       let maxLength = 0;
-      column.eachCell({ includeEmpty: false }, cell => {
+      column.eachCell({ includeEmpty: false }, (cell) => {
         const columnLength = cell.value ? cell.value.toString().length : 0;
         if (columnLength > maxLength) {
           maxLength = columnLength;
@@ -170,7 +171,7 @@ class ExcelFormatter {
    */
   _styleHeaderRow(worksheet, rowNumber, columnCount) {
     const headerRow = worksheet.getRow(rowNumber);
-    
+
     for (let col = 1; col <= columnCount; col++) {
       const cell = headerRow.getCell(col);
       cell.font = { bold: true };

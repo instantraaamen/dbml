@@ -85,7 +85,10 @@ describe('ExcelFormatter', () => {
       try {
         fs.rmSync(TEST_DIR, { recursive: true, force: true });
       } catch (error) {
-        console.warn('Warning: Could not clean up test directory:', error.message);
+        console.warn(
+          'Warning: Could not clean up test directory:',
+          error.message
+        );
       }
     }
   });
@@ -204,9 +207,9 @@ describe('ExcelFormatter', () => {
       await workbook.xlsx.readFile(outputPath);
 
       const usersSheet = workbook.getWorksheet('users');
-      
+
       // 列幅が調整されていることを確認
-      usersSheet.columns.forEach(column => {
+      usersSheet.columns.forEach((column) => {
         expect(column.width).toBeGreaterThan(10);
       });
     });
@@ -217,17 +220,17 @@ describe('ExcelFormatter', () => {
       const formatter = new ExcelFormatter();
       const outputPath = path.join(TEST_OUTPUT_DIR, 'test.xlsx');
 
-      await expect(
-        formatter.formatToExcel(null, outputPath)
-      ).rejects.toThrow('Invalid DBML data provided');
+      await expect(formatter.formatToExcel(null, outputPath)).rejects.toThrow(
+        'Invalid DBML data provided'
+      );
     });
 
     test('should throw error for invalid output path', async () => {
       const formatter = new ExcelFormatter();
 
-      await expect(
-        formatter.formatToExcel(TEST_DBML_DATA, '')
-      ).rejects.toThrow('Invalid output path provided');
+      await expect(formatter.formatToExcel(TEST_DBML_DATA, '')).rejects.toThrow(
+        'Invalid output path provided'
+      );
     });
   });
 });

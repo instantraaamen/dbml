@@ -43,6 +43,7 @@ npm install
 ### Command Line Interface
 
 #### Global Installation
+
 ```bash
 # Convert DBML file to CSV
 dbml-to-excel <input.dbml> <output-directory>
@@ -52,6 +53,7 @@ dbml-to-excel database_spec.dbml output/
 ```
 
 #### Local Installation
+
 ```bash
 # Using npx
 npx dbml-to-excel <input.dbml> <output-directory>
