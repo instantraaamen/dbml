@@ -12,7 +12,15 @@ const TEST_DIR = path.join(__dirname, 'temp');
 describe('File Writer', () => {
   afterEach(() => {
     if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      try {
+        fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      } catch (error) {
+        // macOSでのファイル削除エラーを無視
+        console.warn(
+          'Warning: Could not clean up test directory:',
+          error.message
+        );
+      }
     }
   });
 

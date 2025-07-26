@@ -22,7 +22,7 @@ function ensureDirectoryExists(dirPath) {
  * @param {string} csvContent - CSV内容
  */
 function writeCSVFile(filePath, csvContent) {
-  fs.writeFileSync(filePath, csvContent);
+  fs.writeFileSync(filePath, csvContent, 'utf8');
 }
 
 /**

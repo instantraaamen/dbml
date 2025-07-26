@@ -28,16 +28,25 @@ Table products {
 
 describe('DBML to Excel Integration Tests', () => {
   beforeEach(() => {
-    // テスト用ディレクトリを作成
-    if (!fs.existsSync(TEST_DIR)) {
-      fs.mkdirSync(TEST_DIR, { recursive: true });
+    // テスト用ディレクトリを作成（既存のものがあれば削除）
+    if (fs.existsSync(TEST_DIR)) {
+      fs.rmSync(TEST_DIR, { recursive: true, force: true });
     }
+    fs.mkdirSync(TEST_DIR, { recursive: true });
   });
 
   afterEach(() => {
     // テスト用ファイルをクリーンアップ
     if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      try {
+        fs.rmSync(TEST_DIR, { recursive: true, force: true });
+      } catch (error) {
+        // macOSでのファイル削除エラーを無視
+        console.warn(
+          'Warning: Could not clean up test directory:',
+          error.message
+        );
+      }
     }
   });
 
@@ -57,9 +66,9 @@ describe('DBML to Excel Integration Tests', () => {
       expect(fs.existsSync(path.join(TEST_OUTPUT_DIR, 'products.csv'))).toBe(
         true
       );
-      expect(
-        fs.existsSync(path.join(TEST_OUTPUT_DIR, '_テーブル一覧.csv'))
-      ).toBe(true);
+      expect(fs.existsSync(path.join(TEST_OUTPUT_DIR, '_table_list.csv'))).toBe(
+        true
+      );
     });
 
     test('should create output directory if it does not exist', () => {
@@ -79,7 +88,7 @@ describe('DBML to Excel Integration Tests', () => {
 
       convertDBMLToExcel(testFile, TEST_OUTPUT_DIR);
 
-      const listFile = path.join(TEST_OUTPUT_DIR, '_テーブル一覧.csv');
+      const listFile = path.join(TEST_OUTPUT_DIR, '_table_list.csv');
       const content = fs.readFileSync(listFile, 'utf8');
       const lines = content.split('\n');
 
