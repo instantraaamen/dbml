@@ -44,17 +44,27 @@ class ExcelFormatter {
       worksheets.push(table.name);
     }
 
-    // ファイル保存
-    await this.workbook.xlsx.writeFile(outputPath);
+    // ファイル保存（エラーハンドリング強化）
+    try {
+      await this.workbook.xlsx.writeFile(outputPath);
+    } catch (error) {
+      throw new Error(`Failed to write Excel file: ${error.message}`);
+    }
 
-    // Windows環境での書き込み完了確認
-    if (process.platform === 'win32') {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+    // 全環境での書き込み完了確認（CI環境での安定性向上）
+    const isCI = process.env.CI === 'true';
+    const delay = process.platform === 'win32' ? 200 : isCI ? 100 : 50;
 
-      // ファイル存在とサイズ確認でエラー回避
-      if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size === 0) {
-        throw new Error('Excel file was not created properly on Windows');
-      }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    // ファイル存在とサイズ確認
+    if (!fs.existsSync(outputPath)) {
+      throw new Error(`Excel file was not created: ${outputPath}`);
+    }
+
+    const stats = fs.statSync(outputPath);
+    if (stats.size === 0) {
+      throw new Error(`Excel file was created but is empty: ${outputPath}`);
     }
 
     return {

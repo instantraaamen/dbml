@@ -134,14 +134,21 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // Windows環境での安定化
-      if (process.platform === 'win32') {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-      }
+      // CI環境での安定化（全プラットフォーム対応）
+      const isCI = process.env.CI === 'true';
+      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
 
-      // Excelファイルを読み込んで内容を確認
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      // Excelファイルを読み込んで内容を確認（エラーハンドリング強化）
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.readFile(outputPath);
+      try {
+        await workbook.xlsx.readFile(outputPath);
+      } catch (error) {
+        throw new Error(
+          `Failed to read Excel file in test: ${error.message}. File exists: ${fs.existsSync(outputPath)}`
+        );
+      }
 
       const overviewSheet = workbook.getWorksheet('テーブル一覧');
       expect(overviewSheet).toBeDefined();
@@ -165,13 +172,20 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // Windows環境での安定化
-      if (process.platform === 'win32') {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-      }
+      // CI環境での安定化（全プラットフォーム対応）
+      const isCI = process.env.CI === 'true';
+      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
 
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.readFile(outputPath);
+      try {
+        await workbook.xlsx.readFile(outputPath);
+      } catch (error) {
+        throw new Error(
+          `Failed to read Excel file in test: ${error.message}. File exists: ${fs.existsSync(outputPath)}`
+        );
+      }
 
       // usersテーブルのワークシート確認
       const usersSheet = workbook.getWorksheet('users');
@@ -195,13 +209,20 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // Windows環境での安定化
-      if (process.platform === 'win32') {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-      }
+      // CI環境での安定化（全プラットフォーム対応）
+      const isCI = process.env.CI === 'true';
+      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
 
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.readFile(outputPath);
+      try {
+        await workbook.xlsx.readFile(outputPath);
+      } catch (error) {
+        throw new Error(
+          `Failed to read Excel file in test: ${error.message}. File exists: ${fs.existsSync(outputPath)}`
+        );
+      }
 
       const usersSheet = workbook.getWorksheet('users');
       const headerRow = usersSheet.getRow(1);
@@ -218,13 +239,20 @@ describe('ExcelFormatter', () => {
 
       await formatter.formatToExcel(TEST_DBML_DATA, outputPath);
 
-      // Windows環境での安定化
-      if (process.platform === 'win32') {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-      }
+      // CI環境での安定化（全プラットフォーム対応）
+      const isCI = process.env.CI === 'true';
+      const delay = process.platform === 'win32' ? 250 : isCI ? 150 : 100;
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
 
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.readFile(outputPath);
+      try {
+        await workbook.xlsx.readFile(outputPath);
+      } catch (error) {
+        throw new Error(
+          `Failed to read Excel file in test: ${error.message}. File exists: ${fs.existsSync(outputPath)}`
+        );
+      }
 
       const usersSheet = workbook.getWorksheet('users');
 

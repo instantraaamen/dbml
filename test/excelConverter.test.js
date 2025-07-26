@@ -75,14 +75,21 @@ describe('Excel Converter Integration Tests', () => {
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
 
-      // Windows環境でのファイルアクセス安定化のための待機
-      if (process.platform === 'win32') {
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
+      // CI環境での安定化（全プラットフォーム対応）
+      const isCI = process.env.CI === 'true';
+      const delay = process.platform === 'win32' ? 300 : isCI ? 200 : 100;
 
-      // 生成されたExcelファイルを読み込んで検証
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      // 生成されたExcelファイルを読み込んで検証（エラーハンドリング強化）
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.readFile(outputExcelFile);
+      try {
+        await workbook.xlsx.readFile(outputExcelFile);
+      } catch (error) {
+        throw new Error(
+          `Failed to read Excel file: ${error.message}. File exists: ${fs.existsSync(outputExcelFile)}, File size: ${fs.existsSync(outputExcelFile) ? fs.statSync(outputExcelFile).size : 'N/A'}`
+        );
+      }
 
       // ワークシートの存在確認
       expect(workbook.getWorksheet('テーブル一覧')).toBeDefined();
