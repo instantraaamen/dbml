@@ -208,7 +208,8 @@ class ExcelFormatter {
    */
   async _waitForFileCreation(outputPath) {
     // CI環境の検出とそれに応じた設定調整
-    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+    const isCI =
+      process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
     const maxRetries = isCI ? 40 : 20;
     const baseDelay = isCI ? 50 : 25;
     const maxDelay = isCI ? 500 : 250;

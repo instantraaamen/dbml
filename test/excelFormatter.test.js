@@ -9,7 +9,8 @@ const TEST_DIR = path.join(__dirname, 'temp');
 // ファイル作成完了待機のヘルパー関数
 async function waitForFileReady(filePath) {
   // CI環境の検出とそれに応じた設定調整
-  const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  const isCI =
+    process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
   const maxRetries = isCI ? 30 : 15;
   const baseDelay = isCI ? 40 : 20;
   const maxDelay = isCI ? 400 : 200;
@@ -30,7 +31,9 @@ async function waitForFileReady(filePath) {
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  throw new Error(`File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI})`);
+  throw new Error(
+    `File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI})`
+  );
 }
 
 // テスト用のDBMLデータ
