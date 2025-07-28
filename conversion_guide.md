@@ -1,173 +1,229 @@
-# DBML変換ガイド
+# DBML Conversion Quick Reference
 
-## 概要
+This guide provides quick reference for DBML conversions using both standard tools and this extension package.
 
-DBMLファイルを様々な形式に変換する方法を紹介します。
+## Standard DBML CLI (@dbml/cli)
 
-## 1. セットアップ
-
-### CLI ツールのインストール
+### Installation
 
 ```bash
 npm install -g @dbml/cli
 ```
 
-## 2. SQL DDL生成
-
-### MySQL
+### SQL DDL Generation
 
 ```bash
-dbml2sql database_spec.dbml --mysql > schema.sql
-```
-
-### PostgreSQL
-
-```bash
+# PostgreSQL
 dbml2sql database_spec.dbml --postgres > schema.sql
-```
 
-### SQLite
+# MySQL
+dbml2sql database_spec.dbml --mysql > schema.sql
 
-```bash
+# SQLite
 dbml2sql database_spec.dbml --sqlite > schema.sql
 ```
 
-## 3. ドキュメント生成
-
-### Markdown形式
+### Other Standard Formats
 
 ```bash
+# JSON format
+dbml2json database_spec.dbml > database_spec.json
+
+# Markdown documentation
 dbml2docs database_spec.dbml --format md > database_docs.md
-```
 
-### HTML形式
-
-```bash
+# HTML documentation
 dbml2docs database_spec.dbml --format html > database_docs.html
 ```
 
-## 4. 他の形式への変換
-
-### Prisma Schema
-
-```bash
-dbml2prisma database_spec.dbml > schema.prisma
-```
-
-### JSON形式
-
-```bash
-dbml2json database_spec.dbml > database_spec.json
-```
-
-## 5. ER図の生成・表示
-
-### Web上でER図を表示
-
-1. https://dbdiagram.io にアクセス
-2. DBMLファイルの内容をコピー&ペースト
-3. 自動でER図が生成される
-4. ブラウザのPDF出力機能でPDF保存可能
-
-### インタラクティブドキュメント
-
-1. https://dbdocs.io にアクセス
-2. DBMLファイルをアップロード
-3. 美しいドキュメントサイトが生成される
-
-## 6. プログラマティックな変換
-
-### Node.js での変換例
+### Programmatic Usage
 
 ```javascript
 const { Parser, ModelExporter } = require('@dbml/core');
-
-// DBMLファイルを読み込み
 const fs = require('fs');
-const dbmlContent = fs.readFileSync('database_spec.dbml', 'utf8');
 
-// パース
+// Read and parse DBML
+const dbmlContent = fs.readFileSync('database_spec.dbml', 'utf8');
 const database = Parser.parse(dbmlContent, 'dbml');
 
-// MySQLに変換
+// Export to different formats
 const mysqlSchema = ModelExporter.export(database, 'mysql');
-fs.writeFileSync('schema.sql', mysqlSchema);
-
-// PostgreSQLに変換
 const postgresSchema = ModelExporter.export(database, 'postgres');
+
+fs.writeFileSync('schema_mysql.sql', mysqlSchema);
 fs.writeFileSync('schema_postgres.sql', postgresSchema);
 ```
 
-## 7. 変換後の活用例
+## Extension Features (This Package)
 
-### DDLの実行
+### Installation
 
 ```bash
-# MySQLの場合
-mysql -u username -p database_name < schema.sql
-
-# PostgreSQLの場合
-psql -U username -d database_name -f schema_postgres.sql
+npm install -g dbml-converter-extensions
 ```
 
-### CI/CDでの自動化
+### Enhanced CSV/Excel Export
+
+```bash
+# Enhanced CSV output (Excel-optimized)
+dbml-convert database_spec.dbml --format csv
+
+# Native Excel (XLSX) output with styling
+dbml-convert database_spec.dbml --format xlsx
+
+# Custom output paths
+dbml-convert database_spec.dbml output/tables.xlsx --format xlsx
+dbml-convert database_spec.dbml output_directory --format csv
+```
+
+### Programmatic Usage
+
+```javascript
+const { convertDBMLToExcel } = require('dbml-converter-extensions');
+const {
+  convertDBMLToExcelFile
+} = require('dbml-converter-extensions/pkg/excelConverter');
+
+// CSV output (Excel-optimized)
+const result = convertDBMLToExcel('input.dbml', 'output/');
+console.log(`Generated ${result.tablesCount} CSV files`);
+
+// Excel output with styling
+const excelResult = await convertDBMLToExcelFile('input.dbml', 'output.xlsx');
+console.log(
+  `Generated Excel file with ${excelResult.worksheets.length} sheets`
+);
+```
+
+## Complete Workflow Example
+
+```bash
+# 1. Standard SQL generation
+dbml2sql database_spec.dbml --postgres > schema.sql
+dbml2sql database_spec.dbml --mysql > schema_mysql.sql
+
+# 2. Documentation generation
+dbml2docs database_spec.dbml --format md > database_docs.md
+
+# 3. Enhanced Excel/CSV reports (extension)
+dbml-convert database_spec.dbml --format xlsx        # Professional Excel report
+dbml-convert database_spec.dbml --format csv         # Excel-optimized CSV files
+
+# 4. Apply SQL to database
+psql -U username -d database_name -f schema.sql
+```
+
+## CI/CD Integration
+
+### GitHub Actions Example
 
 ```yaml
-# GitHub Actions例
-name: Generate Schema
+name: Generate Database Assets
 on: [push]
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
-      - name: Install DBML CLI
-        run: npm install -g @dbml/cli
-      - name: Generate SQL
+          node-version: '20'
+
+      - name: Install DBML tools
         run: |
-          dbml2sql dbml/database_spec.dbml --mysql > schema.sql
-          dbml2docs dbml/database_spec.dbml --format md > docs.md
-      - name: Commit generated files
+          npm install -g @dbml/cli
+          npm install -g dbml-converter-extensions
+
+      - name: Generate all formats
         run: |
-          git add schema.sql docs.md
-          git commit -m "Auto-generate schema and docs"
-          git push
+          # Standard conversions
+          dbml2sql schema.dbml --postgres > schema.sql
+          dbml2docs schema.dbml --format md > database_docs.md
+
+          # Extension: Enhanced reports
+          dbml-convert schema.dbml database_report.xlsx --format xlsx
+          dbml-convert schema.dbml csv_export --format csv
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-assets
+          path: |
+            *.sql
+            *.md
+            *.xlsx
+            csv_export/
 ```
 
-## 8. 実用的なワークフロー
+## VSCode Integration
 
-1. **設計段階**: DBMLでスキーマ設計
-2. **レビュー段階**: dbdiagram.ioでER図を共有・レビュー
-3. **開発段階**: SQL DDLを生成してマイグレーション作成
-4. **ドキュメント化**: Markdownやdbdocs.ioで仕様書作成
-5. **メンテナンス**: DBMLファイルを更新して各形式を再生成
-
-## 9. VSCode拡張機能
+### Extension Installation
 
 ```bash
-# DBML Language Support拡張機能をインストール
 code --install-extension matt-meyers.vscode-dbml
 ```
 
-これにより構文ハイライトとバリデーションが利用可能になります。
+### Workspace Configuration (.vscode/tasks.json)
 
-## 10. よく使うコマンド集
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Generate PostgreSQL Schema",
+      "type": "shell",
+      "command": "dbml2sql",
+      "args": ["${file}", "--postgres"],
+      "group": "build"
+    },
+    {
+      "label": "Generate Excel Report",
+      "type": "shell",
+      "command": "dbml-convert",
+      "args": ["${file}", "--format", "xlsx"],
+      "group": "build"
+    }
+  ]
+}
+```
+
+## Online Tools
+
+### ER Diagram Visualization
+
+1. Visit [dbdiagram.io](https://dbdiagram.io)
+2. Paste your DBML content
+3. Get interactive ER diagram
+4. Export as PDF or PNG
+
+### Interactive Documentation
+
+1. Visit [dbdocs.io](https://dbdocs.io)
+2. Upload your DBML file
+3. Get beautiful documentation website
+4. Share with your team
+
+## Common Command Patterns
 
 ```bash
-# 基本的な変換
-dbml2sql database_spec.dbml --mysql
-dbml2docs database_spec.dbml --format md
+# Quick conversions for all major databases
+dbml2sql schema.dbml --postgres > postgres_schema.sql
+dbml2sql schema.dbml --mysql > mysql_schema.sql
+dbml2sql schema.dbml --sqlite > sqlite_schema.sql
 
-# ファイル出力
-dbml2sql database_spec.dbml --mysql > schema.sql
-dbml2docs database_spec.dbml --format md > docs.md
+# Documentation in multiple formats
+dbml2docs schema.dbml --format md > docs.md
+dbml2docs schema.dbml --format html > docs.html
 
-# 複数形式を一度に生成
-dbml2sql database_spec.dbml --mysql > mysql_schema.sql
-dbml2sql database_spec.dbml --postgres > postgres_schema.sql
-dbml2docs database_spec.dbml --format md > database_docs.md
+# Extension: Comprehensive Excel reports
+dbml-convert schema.dbml comprehensive_report.xlsx --format xlsx
+dbml-convert schema.dbml csv_tables --format csv
 ```
+
+## Tips and Best Practices
+
+1. **Version Control**: Keep DBML files in version control, generate other formats in CI/CD
+2. **Documentation**: Use `dbml2docs` for technical docs, extension Excel for business reports
+3. **Database Migrations**: Generate SQL with `dbml2sql`, create migration scripts
+4. **Team Collaboration**: Share ER diagrams via dbdiagram.io, Excel reports for stakeholders
+5. **Automation**: Set up CI/CD to auto-generate all formats on DBML changes

@@ -1,88 +1,131 @@
-# DBML to Excel Converter
+# DBML Converter Extensions
 
 ![CI](https://github.com/instantraaamen/dbml/workflows/%F0%9F%94%84%20Continuous%20Integration/badge.svg)
-![Node.js Version](https://img.shields.io/badge/node-16%20%7C%2018%20%7C%2020-brightgreen)
+![Node.js Version](https://img.shields.io/badge/node-20%20%7C%2022-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Convert DBML (Database Markup Language) files to Excel-friendly CSV format with comprehensive table analysis.
+**Extended DBML conversion utilities that complement the official @dbml/cli package.**
 
-## 🚀 Features
+This package provides enhanced CSV and Excel (XLSX) output capabilities for DBML files, featuring beautiful formatting, Japanese language support, and cross-platform compatibility.
 
-- **DBML Parsing**: Full support for DBML syntax including tables, fields, and relationships
-- **CSV Generation**: Creates separate CSV files for each table with detailed field information
-- **Table Overview**: Generates a summary CSV with table statistics
-- **Excel Compatible**: Output format optimized for Excel import
-- **CLI Interface**: Easy-to-use command line tool
+## 🎯 Purpose
 
-## 📦 Installation
+This is an **extension package** for [DBML CLI](https://github.com/holistics/dbml/tree/master/packages/dbml-cli). While the official `@dbml/cli` provides core conversion features (SQL DDL, JSON, etc.), this package focuses on:
 
-### NPM Package (Recommended)
+- ✨ **Enhanced CSV output** with Excel-optimized formatting
+- 📊 **Native Excel (XLSX) export** with professional styling
+- 🎨 **Beautiful table formatting** with headers, borders, and auto-width
+- 🌏 **Japanese language support** for headers and content
+- 🚀 **Cross-platform compatibility** (Linux, with Ubuntu LTS focus)
+
+## 🔧 DBML Standard Conversions (Official @dbml/cli)
+
+Before using this extension, you might want to use the standard DBML CLI tools:
+
+### Installation
 
 ```bash
-# Install globally for CLI usage
-npm install -g dbml-to-excel-converter
-
-# Or install locally in your project
-npm install dbml-to-excel-converter
+npm install -g @dbml/cli
 ```
 
-### From Source
+### SQL DDL Generation
 
 ```bash
-# Clone the repository
-git clone https://github.com/instantraaamen/dbml.git
-cd dbml
+# PostgreSQL
+dbml2sql database_spec.dbml --postgres > schema.sql
 
-# Install dependencies
-npm install
+# MySQL
+dbml2sql database_spec.dbml --mysql > schema.sql
+
+# SQLite
+dbml2sql database_spec.dbml --sqlite > schema.sql
 ```
 
-## 🔧 Usage
-
-### Command Line Interface
-
-#### Global Installation
+### Other Standard Formats
 
 ```bash
-# Convert DBML file to CSV
-dbml-to-excel <input.dbml> <output-directory>
+# JSON format
+dbml2json database_spec.dbml > database_spec.json
 
-# Example
-dbml-to-excel database_spec.dbml output/
-```
-
-#### Local Installation
-
-```bash
-# Using npx
-npx dbml-to-excel <input.dbml> <output-directory>
-
-# Using npm script (from source)
-npm run convert <input.dbml> <output-directory>
+# Documentation
+dbml2docs database_spec.dbml --format md > database_docs.md
 ```
 
 ### Programmatic Usage
 
 ```javascript
-const { convertDBMLToExcel } = require('dbml-to-excel-converter');
+const { Parser, ModelExporter } = require('@dbml/core');
 
-const result = convertDBMLToExcel('input.dbml', 'output/');
-console.log(`Converted ${result.tablesCount} tables`);
-console.log(`Generated files: ${result.files.join(', ')}`);
+const database = Parser.parse(dbmlContent, 'dbml');
+
+// Generate SQL for different databases
+const mysqlSchema = ModelExporter.export(database, 'mysql');
+const postgresSchema = ModelExporter.export(database, 'postgres');
 ```
 
-## 📋 Output Format
+## 📦 Installation (This Extension)
 
-The converter generates:
+```bash
+# Install globally for CLI usage
+npm install -g dbml-converter-extensions
 
-1. **Individual table CSV files**: One file per table with field details
-2. **Table summary CSV**: Overview of all tables with statistics
-3. **Excel-compatible format**: Ready for import into spreadsheet applications
+# Or install locally in your project
+npm install dbml-converter-extensions
+```
 
-### CSV Structure
+## 🚀 Usage (Extension Features)
 
-Each table CSV contains:
+### Command Line Interface
+
+```bash
+# Enhanced CSV output (Excel-optimized)
+dbml-convert database_spec.dbml --format csv
+
+# Native Excel (XLSX) output with styling
+dbml-convert database_spec.dbml --format xlsx
+
+# Custom output paths
+dbml-convert database_spec.dbml output/tables.xlsx --format xlsx
+dbml-convert database_spec.dbml output_directory --format csv
+```
+
+### Programmatic Usage
+
+```javascript
+const { convertDBMLToExcel } = require('dbml-converter-extensions');
+const {
+  convertDBMLToExcelFile
+} = require('dbml-converter-extensions/pkg/excelConverter');
+
+// CSV output
+const result = convertDBMLToExcel('input.dbml', 'output/');
+console.log(`Generated ${result.tablesCount} CSV files`);
+
+// Excel output
+const excelResult = await convertDBMLToExcelFile('input.dbml', 'output.xlsx');
+console.log(
+  `Generated Excel file with ${excelResult.worksheets.length} sheets`
+);
+```
+
+## 📊 Output Features
+
+### Enhanced CSV Output
+
+- **Excel-optimized formatting** with proper escaping
+- **Japanese headers** (フィールド名, データ型, etc.)
+- **Comprehensive field information** including constraints and comments
+- **Table summary sheet** with overview statistics
+
+### Excel (XLSX) Output
+
+- **Professional styling** with colored headers and borders
+- **Multi-sheet workbooks** (overview + individual tables)
+- **Auto-adjusted column widths** for optimal readability
+- **Native Excel format** - no CSV import needed
+
+### Field Information Included
 
 - フィールド名 (Field Name)
 - データ型 (Data Type)
@@ -93,65 +136,83 @@ Each table CSV contains:
 - 自動増分 (Auto Increment)
 - 説明 (Description)
 
-## 🧪 Development
+## 🔗 Complete DBML Workflow
+
+1. **Design**: Create DBML schema files
+2. **Visualize**: Use [dbdiagram.io](https://dbdiagram.io) for ER diagrams
+3. **Generate SQL**: Use `@dbml/cli` for database-specific DDL
+4. **Export Data**: Use this extension for Excel/CSV reports
+5. **Document**: Use `@dbml/cli` for Markdown documentation
+
+### Typical Command Sequence
+
+```bash
+# Standard DBML CLI conversions
+dbml2sql database_spec.dbml --postgres > schema.sql
+dbml2docs database_spec.dbml --format md > docs.md
+
+# Extension: Enhanced Excel/CSV export
+dbml-convert database_spec.dbml --format xlsx
+dbml-convert database_spec.dbml --format csv
+```
+
+## 🛠️ Development
 
 ### Running Tests
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
+npm test                # Run all tests
+npm run test:coverage   # Run with coverage report
+npm run test:watch      # Run in watch mode
 ```
 
 ### Code Quality
 
 ```bash
-# Run linter
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Check code formatting
-npm run format:check
-
-# Format code
-npm run format
+npm run lint           # Run ESLint
+npm run format         # Run Prettier
 ```
 
-### CI/CD Pipeline
+## 🌐 Ecosystem Integration
 
-This project uses GitHub Actions for continuous integration with:
+### VSCode Extension
 
-- ✅ **Multi-environment testing**: Node.js 16, 18, 20 on Ubuntu, Windows, macOS
-- ✅ **Code quality checks**: ESLint and Prettier
-- ✅ **Test coverage reporting**: 100% coverage with Codecov integration
-- ✅ **Security scanning**: npm audit and Snyk
-- ✅ **Build validation**: Artifact generation and validation
+```bash
+code --install-extension matt-meyers.vscode-dbml
+```
 
-## 📊 Test Coverage
+### CI/CD Integration
 
-Current test coverage: **100%** across all modules
+```yaml
+- name: Generate Database Assets
+  run: |
+    # Standard conversions
+    dbml2sql schema.dbml --postgres > schema.sql
+    dbml2docs schema.dbml --format md > database_docs.md
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+    # Extension: Excel reports
+    dbml-convert schema.dbml database_report.xlsx --format xlsx
+```
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🔗 Related Resources
 
-- [DBML Documentation](https://dbml.dbdiagram.io/)
-- [DBML Core Library](https://github.com/holistics/dbml)
-- [GitHub Actions](https://docs.github.com/en/actions)
+- **[DBML Official CLI](https://github.com/holistics/dbml/tree/master/packages/dbml-cli)** - Core DBML conversion tools
+- **[DBML Documentation](https://dbml.dbdiagram.io/)** - DBML language specification
+- **[dbdiagram.io](https://dbdiagram.io/)** - Online ER diagram generator
+- **[dbdocs.io](https://dbdocs.io/)** - Interactive database documentation
+
+## 🤝 Contributing
+
+This package extends the DBML ecosystem. For core DBML features, contribute to the [official DBML repository](https://github.com/holistics/dbml).
+
+For extension-specific features:
+
+1. Fork this repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request

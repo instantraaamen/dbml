@@ -9,19 +9,26 @@ async function main() {
 
   if (args.length === 0) {
     console.log(`
-📊 DBML to Excel Converter
+📊 DBML Converter Extensions
+
+Enhanced DBML conversion utilities with Excel/CSV export capabilities.
 
 使用方法:
-  dbml-to-excel <dbmlファイル> [出力パス] [オプション]
+  dbml-convert <dbmlファイル> [出力パス] [オプション]
 
 オプション:
   --format <csv|xlsx>     出力形式 (デフォルト: csv)
 
 例:
-  dbml-to-excel database_spec.dbml
-  dbml-to-excel database_spec.dbml ./output
-  dbml-to-excel database_spec.dbml output.xlsx --format xlsx
-  dbml-to-excel database_spec.dbml ./output --format csv
+  dbml-convert database_spec.dbml                           # CSV出力 (デフォルト)
+  dbml-convert database_spec.dbml --format xlsx             # Excel出力
+  dbml-convert database_spec.dbml ./output --format csv     # 指定ディレクトリにCSV
+  dbml-convert database_spec.dbml report.xlsx --format xlsx # 指定ファイルにExcel
+
+標準DBML変換 (@dbml/cliも併用推奨):
+  dbml2sql database_spec.dbml --postgres > schema.sql      # PostgreSQL DDL
+  dbml2sql database_spec.dbml --mysql > schema.sql         # MySQL DDL
+  dbml2docs database_spec.dbml --format md > docs.md       # ドキュメント
 `);
     process.exit(1);
   }

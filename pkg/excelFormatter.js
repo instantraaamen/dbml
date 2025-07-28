@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const ExcelJS = require('exceljs');
 
 /**
@@ -39,6 +40,12 @@ class ExcelFormatter {
 
     // ファイル保存（エラーハンドリング強化）
     try {
+      // 出力ディレクトリの存在確認（macOS対応）
+      const outputDir = path.dirname(outputPath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
       await this.workbook.xlsx.writeFile(outputPath);
     } catch (error) {
       throw new Error(`Failed to write Excel file: ${error.message}`);
@@ -207,12 +214,14 @@ class ExcelFormatter {
    * @private
    */
   async _waitForFileCreation(outputPath) {
-    // CI環境の検出とそれに応じた設定調整
+    // CI環境の検出
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-    const maxRetries = isCI ? 40 : 20;
-    const baseDelay = isCI ? 50 : 25;
-    const maxDelay = isCI ? 500 : 250;
+
+    // CI環境では安定性を重視した設定
+    const maxRetries = isCI ? 40 : 15;
+    const baseDelay = isCI ? 30 : 20;
+    const maxDelay = isCI ? 150 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
@@ -220,7 +229,6 @@ class ExcelFormatter {
         try {
           const stats = fs.statSync(outputPath);
           if (stats.size > 0) {
-            // ファイルが存在し、サイズも0より大きい
             return;
           }
         } catch (error) {
@@ -228,8 +236,8 @@ class ExcelFormatter {
         }
       }
 
-      // 指数的バックオフで待機（CI環境では最大500ms）
-      const delay = Math.min(baseDelay * Math.pow(1.5, attempt), maxDelay);
+      // 指数的バックオフで待機（テストタイムアウトを考慮）
+      const delay = Math.min(baseDelay * Math.pow(1.3, attempt), maxDelay);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 

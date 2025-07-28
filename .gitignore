@@ -52,5 +52,7 @@ out/
 # Test coverage reports
 coverage/
 
-# Generated CSV files
+# Generated output files
 excel/
+*.xlsx
+*.csv
