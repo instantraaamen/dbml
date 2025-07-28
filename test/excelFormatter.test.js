@@ -12,11 +12,11 @@ async function waitForFileReady(filePath) {
   const isCI =
     process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
   const isMacOS = process.platform === 'darwin';
-  
+
   // テストタイムアウト（5秒）を考慮した控えめな設定
-  const maxRetries = isCI ? (isMacOS ? 20 : 15) : 10;
-  const baseDelay = isCI ? (isMacOS ? 30 : 25) : 15;
-  const maxDelay = isCI ? (isMacOS ? 150 : 100) : 80;
+  const maxRetries = isCI ? (isMacOS ? 20 : 25) : 10;
+  const baseDelay = isCI ? (isMacOS ? 30 : 20) : 15;
+  const maxDelay = isCI ? (isMacOS ? 150 : 80) : 80;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {

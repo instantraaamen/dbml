@@ -49,7 +49,7 @@ class ExcelFormatter {
           await new Promise((resolve) => setTimeout(resolve, 10));
         }
       }
-      
+
       await this.workbook.xlsx.writeFile(outputPath);
     } catch (error) {
       throw new Error(`Failed to write Excel file: ${error.message}`);
@@ -222,11 +222,11 @@ class ExcelFormatter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
     const isMacOS = process.platform === 'darwin';
-    
+
     // テストタイムアウト（5秒）を考慮した控えめな設定
-    const maxRetries = isCI ? (isMacOS ? 25 : 20) : 15;
-    const baseDelay = isCI ? (isMacOS ? 40 : 30) : 20;
-    const maxDelay = isCI ? (isMacOS ? 200 : 150) : 100;
+    const maxRetries = isCI ? (isMacOS ? 25 : 30) : 15;
+    const baseDelay = isCI ? (isMacOS ? 40 : 25) : 20;
+    const maxDelay = isCI ? (isMacOS ? 200 : 120) : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
