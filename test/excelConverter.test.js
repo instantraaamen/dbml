@@ -8,18 +8,25 @@ const TEST_DIR = path.join(__dirname, 'temp');
 
 // ファイル作成完了待機のヘルパー関数
 async function waitForFileReady(filePath) {
-  // CI環境の検出とそれに応じた設定調整
+  // CI環境とプラットフォームの検出
   const isCI =
     process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-  const maxRetries = isCI ? 30 : 15;
-  const baseDelay = isCI ? 40 : 20;
-  const maxDelay = isCI ? 400 : 200;
+  const isMacOS = process.platform === 'darwin';
+  
+  // macOSでは追加のリトライが必要
+  const maxRetries = isCI ? (isMacOS ? 45 : 30) : 15;
+  const baseDelay = isCI ? (isMacOS ? 60 : 40) : 20;
+  const maxDelay = isCI ? (isMacOS ? 600 : 400) : 200;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {
       try {
         const stats = fs.statSync(filePath);
         if (stats.size > 0) {
+          // macOSでは追加の安定化待機
+          if (isMacOS && isCI) {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          }
           return;
         }
       } catch (error) {
@@ -32,7 +39,7 @@ async function waitForFileReady(filePath) {
   }
 
   throw new Error(
-    `File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI})`
+    `File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI}, macOS: ${isMacOS})`
   );
 }
 

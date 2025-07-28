@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const ExcelJS = require('exceljs');
 
 /**
@@ -39,6 +40,16 @@ class ExcelFormatter {
 
     // ファイル保存（エラーハンドリング強化）
     try {
+      // 出力ディレクトリの存在確認（macOS対応）
+      const outputDir = path.dirname(outputPath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+        // macOSでのディレクトリ作成完了を待機
+        if (process.platform === 'darwin') {
+          await new Promise((resolve) => setTimeout(resolve, 10));
+        }
+      }
+      
       await this.workbook.xlsx.writeFile(outputPath);
     } catch (error) {
       throw new Error(`Failed to write Excel file: ${error.message}`);
@@ -207,12 +218,15 @@ class ExcelFormatter {
    * @private
    */
   async _waitForFileCreation(outputPath) {
-    // CI環境の検出とそれに応じた設定調整
+    // CI環境とプラットフォームの検出
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-    const maxRetries = isCI ? 40 : 20;
-    const baseDelay = isCI ? 50 : 25;
-    const maxDelay = isCI ? 500 : 250;
+    const isMacOS = process.platform === 'darwin';
+    
+    // macOSでは追加の待機時間が必要
+    const maxRetries = isCI ? (isMacOS ? 60 : 40) : 20;
+    const baseDelay = isCI ? (isMacOS ? 75 : 50) : 25;
+    const maxDelay = isCI ? (isMacOS ? 750 : 500) : 250;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
@@ -220,7 +234,10 @@ class ExcelFormatter {
         try {
           const stats = fs.statSync(outputPath);
           if (stats.size > 0) {
-            // ファイルが存在し、サイズも0より大きい
+            // macOSでは追加の安定化待機
+            if (isMacOS && isCI) {
+              await new Promise((resolve) => setTimeout(resolve, 50));
+            }
             return;
           }
         } catch (error) {
@@ -228,7 +245,7 @@ class ExcelFormatter {
         }
       }
 
-      // 指数的バックオフで待機（CI環境では最大500ms）
+      // 指数的バックオフで待機（macOS CI環境では最大750ms）
       const delay = Math.min(baseDelay * Math.pow(1.5, attempt), maxDelay);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
@@ -236,7 +253,7 @@ class ExcelFormatter {
     // 最終確認
     if (!fs.existsSync(outputPath)) {
       throw new Error(
-        `Excel file was not created after ${maxRetries} attempts: ${outputPath} (CI: ${isCI})`
+        `Excel file was not created after ${maxRetries} attempts: ${outputPath} (CI: ${isCI}, macOS: ${isMacOS})`
       );
     }
 
