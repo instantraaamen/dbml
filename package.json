@@ -2,23 +2,25 @@
   "name": "dbml-converter-extensions",
   "version": "1.0.0",
   "description": "Extended DBML conversion utilities - CSV and Excel output with enhanced formatting",
-  "main": "pkg/dbmlToExcel.js",
+  "main": "src/index.js",
   "bin": {
-    "dbml-convert": "pkg/cli.js"
+    "dbml-convert": "./bin/dbml-convert.js"
   },
   "files": [
+    "src/",
+    "bin/",
     "pkg/",
     "README.md",
     "LICENSE",
     "conversion_guide.md"
   ],
   "scripts": {
-    "convert": "node pkg/cli.js",
+    "convert": "node bin/dbml-convert.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint pkg/ test/",
-    "lint:fix": "eslint pkg/ test/ --fix",
+    "lint": "eslint src/ bin/ test/ pkg/",
+    "lint:fix": "eslint src/ bin/ test/ pkg/ --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepublishOnly": "npm test && npm run lint"
@@ -52,6 +54,7 @@
   },
   "dependencies": {
     "@dbml/core": "^3.6.2",
+    "commander": "^14.0.0",
     "exceljs": "^4.4.0"
   },
   "devDependencies": {
@@ -64,6 +67,8 @@
     "testTimeout": 10000,
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/cli/index.js",
       "pkg/**/*.js",
       "!pkg/cli.js"
     ]
