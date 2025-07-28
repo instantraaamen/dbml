@@ -5,11 +5,13 @@ This guide provides quick reference for DBML conversions using both standard too
 ## Standard DBML CLI (@dbml/cli)
 
 ### Installation
+
 ```bash
 npm install -g @dbml/cli
 ```
 
 ### SQL DDL Generation
+
 ```bash
 # PostgreSQL
 dbml2sql database_spec.dbml --postgres > schema.sql
@@ -22,6 +24,7 @@ dbml2sql database_spec.dbml --sqlite > schema.sql
 ```
 
 ### Other Standard Formats
+
 ```bash
 # JSON format
 dbml2json database_spec.dbml > database_spec.json
@@ -34,6 +37,7 @@ dbml2docs database_spec.dbml --format html > database_docs.html
 ```
 
 ### Programmatic Usage
+
 ```javascript
 const { Parser, ModelExporter } = require('@dbml/core');
 const fs = require('fs');
@@ -53,11 +57,13 @@ fs.writeFileSync('schema_postgres.sql', postgresSchema);
 ## Extension Features (This Package)
 
 ### Installation
+
 ```bash
 npm install -g dbml-converter-extensions
 ```
 
 ### Enhanced CSV/Excel Export
+
 ```bash
 # Enhanced CSV output (Excel-optimized)
 dbml-convert database_spec.dbml --format csv
@@ -71,9 +77,12 @@ dbml-convert database_spec.dbml output_directory --format csv
 ```
 
 ### Programmatic Usage
+
 ```javascript
 const { convertDBMLToExcel } = require('dbml-converter-extensions');
-const { convertDBMLToExcelFile } = require('dbml-converter-extensions/pkg/excelConverter');
+const {
+  convertDBMLToExcelFile
+} = require('dbml-converter-extensions/pkg/excelConverter');
 
 // CSV output (Excel-optimized)
 const result = convertDBMLToExcel('input.dbml', 'output/');
@@ -81,7 +90,9 @@ console.log(`Generated ${result.tablesCount} CSV files`);
 
 // Excel output with styling
 const excelResult = await convertDBMLToExcelFile('input.dbml', 'output.xlsx');
-console.log(`Generated Excel file with ${excelResult.worksheets.length} sheets`);
+console.log(
+  `Generated Excel file with ${excelResult.worksheets.length} sheets`
+);
 ```
 
 ## Complete Workflow Example
@@ -105,6 +116,7 @@ psql -U username -d database_name -f schema.sql
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: Generate Database Assets
 on: [push]
@@ -116,22 +128,22 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      
+
       - name: Install DBML tools
         run: |
           npm install -g @dbml/cli
           npm install -g dbml-converter-extensions
-      
+
       - name: Generate all formats
         run: |
           # Standard conversions
           dbml2sql schema.dbml --postgres > schema.sql
           dbml2docs schema.dbml --format md > database_docs.md
-          
+
           # Extension: Enhanced reports
           dbml-convert schema.dbml database_report.xlsx --format xlsx
           dbml-convert schema.dbml csv_export --format csv
-      
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -146,11 +158,13 @@ jobs:
 ## VSCode Integration
 
 ### Extension Installation
+
 ```bash
 code --install-extension matt-meyers.vscode-dbml
 ```
 
 ### Workspace Configuration (.vscode/tasks.json)
+
 ```json
 {
   "version": "2.0.0",
@@ -176,12 +190,14 @@ code --install-extension matt-meyers.vscode-dbml
 ## Online Tools
 
 ### ER Diagram Visualization
+
 1. Visit [dbdiagram.io](https://dbdiagram.io)
 2. Paste your DBML content
 3. Get interactive ER diagram
 4. Export as PDF or PNG
 
 ### Interactive Documentation
+
 1. Visit [dbdocs.io](https://dbdocs.io)
 2. Upload your DBML file
 3. Get beautiful documentation website

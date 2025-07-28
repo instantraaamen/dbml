@@ -24,16 +24,18 @@ This is an **extension package** for [DBML CLI](https://github.com/holistics/dbm
 Before using this extension, you might want to use the standard DBML CLI tools:
 
 ### Installation
+
 ```bash
 npm install -g @dbml/cli
 ```
 
 ### SQL DDL Generation
+
 ```bash
 # PostgreSQL
 dbml2sql database_spec.dbml --postgres > schema.sql
 
-# MySQL  
+# MySQL
 dbml2sql database_spec.dbml --mysql > schema.sql
 
 # SQLite
@@ -41,6 +43,7 @@ dbml2sql database_spec.dbml --sqlite > schema.sql
 ```
 
 ### Other Standard Formats
+
 ```bash
 # JSON format
 dbml2json database_spec.dbml > database_spec.json
@@ -50,6 +53,7 @@ dbml2docs database_spec.dbml --format md > database_docs.md
 ```
 
 ### Programmatic Usage
+
 ```javascript
 const { Parser, ModelExporter } = require('@dbml/core');
 
@@ -90,7 +94,9 @@ dbml-convert database_spec.dbml output_directory --format csv
 
 ```javascript
 const { convertDBMLToExcel } = require('dbml-converter-extensions');
-const { convertDBMLToExcelFile } = require('dbml-converter-extensions/pkg/excelConverter');
+const {
+  convertDBMLToExcelFile
+} = require('dbml-converter-extensions/pkg/excelConverter');
 
 // CSV output
 const result = convertDBMLToExcel('input.dbml', 'output/');
@@ -98,24 +104,29 @@ console.log(`Generated ${result.tablesCount} CSV files`);
 
 // Excel output
 const excelResult = await convertDBMLToExcelFile('input.dbml', 'output.xlsx');
-console.log(`Generated Excel file with ${excelResult.worksheets.length} sheets`);
+console.log(
+  `Generated Excel file with ${excelResult.worksheets.length} sheets`
+);
 ```
 
 ## 📊 Output Features
 
 ### Enhanced CSV Output
+
 - **Excel-optimized formatting** with proper escaping
 - **Japanese headers** (フィールド名, データ型, etc.)
 - **Comprehensive field information** including constraints and comments
 - **Table summary sheet** with overview statistics
 
 ### Excel (XLSX) Output
+
 - **Professional styling** with colored headers and borders
 - **Multi-sheet workbooks** (overview + individual tables)
 - **Auto-adjusted column widths** for optimal readability
 - **Native Excel format** - no CSV import needed
 
 ### Field Information Included
+
 - フィールド名 (Field Name)
 - データ型 (Data Type)
 - NULL許可 (NULL Allowed)
@@ -134,6 +145,7 @@ console.log(`Generated Excel file with ${excelResult.worksheets.length} sheets`)
 5. **Document**: Use `@dbml/cli` for Markdown documentation
 
 ### Typical Command Sequence
+
 ```bash
 # Standard DBML CLI conversions
 dbml2sql database_spec.dbml --postgres > schema.sql
@@ -147,6 +159,7 @@ dbml-convert database_spec.dbml --format csv
 ## 🛠️ Development
 
 ### Running Tests
+
 ```bash
 npm test                # Run all tests
 npm run test:coverage   # Run with coverage report
@@ -154,6 +167,7 @@ npm run test:watch      # Run in watch mode
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint           # Run ESLint
 npm run format         # Run Prettier
@@ -162,18 +176,20 @@ npm run format         # Run Prettier
 ## 🌐 Ecosystem Integration
 
 ### VSCode Extension
+
 ```bash
 code --install-extension matt-meyers.vscode-dbml
 ```
 
 ### CI/CD Integration
+
 ```yaml
 - name: Generate Database Assets
   run: |
     # Standard conversions
     dbml2sql schema.dbml --postgres > schema.sql
     dbml2docs schema.dbml --format md > database_docs.md
-    
+
     # Extension: Excel reports
     dbml-convert schema.dbml database_report.xlsx --format xlsx
 ```
@@ -194,6 +210,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 This package extends the DBML ecosystem. For core DBML features, contribute to the [official DBML repository](https://github.com/holistics/dbml).
 
 For extension-specific features:
+
 1. Fork this repository
 2. Create a feature branch
 3. Add tests for new functionality
