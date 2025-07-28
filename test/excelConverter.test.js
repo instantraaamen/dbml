@@ -13,19 +13,19 @@ async function waitForFileReady(filePath) {
     process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
   const isMacOS = process.platform === 'darwin';
 
-  // テストタイムアウト（5秒）を考慮した控えめな設定
-  const maxRetries = isCI ? (isMacOS ? 20 : 25) : 10;
-  const baseDelay = isCI ? (isMacOS ? 30 : 20) : 15;
-  const maxDelay = isCI ? (isMacOS ? 150 : 80) : 80;
+  // macOS CI環境のファイルシステム特性を考慮した設定
+  const maxRetries = isCI ? (isMacOS ? 30 : 25) : 10;
+  const baseDelay = isCI ? (isMacOS ? 40 : 20) : 15;
+  const maxDelay = isCI ? (isMacOS ? 200 : 80) : 80;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {
       try {
         const stats = fs.statSync(filePath);
         if (stats.size > 0) {
-          // macOSでは最小限の安定化待機
+          // macOS CI環境での追加安定化待機
           if (isMacOS && isCI) {
-            await new Promise((resolve) => setTimeout(resolve, 5));
+            await new Promise((resolve) => setTimeout(resolve, 15));
           }
           return;
         }

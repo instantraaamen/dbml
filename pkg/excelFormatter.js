@@ -44,9 +44,10 @@ class ExcelFormatter {
       const outputDir = path.dirname(outputPath);
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
-        // macOSでのディレクトリ作成完了を待機
+        // macOSでのCI環境での安定化待機
         if (process.platform === 'darwin') {
-          await new Promise((resolve) => setTimeout(resolve, 10));
+          const stabilizeDelay = isCI ? 25 : 10;
+          await new Promise((resolve) => setTimeout(resolve, stabilizeDelay));
         }
       }
 
@@ -223,10 +224,10 @@ class ExcelFormatter {
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
     const isMacOS = process.platform === 'darwin';
 
-    // テストタイムアウト（5秒）を考慮した控えめな設定
-    const maxRetries = isCI ? (isMacOS ? 25 : 30) : 15;
-    const baseDelay = isCI ? (isMacOS ? 40 : 25) : 20;
-    const maxDelay = isCI ? (isMacOS ? 200 : 120) : 100;
+    // macOS CI環境のファイルシステム特性を考慮した設定
+    const maxRetries = isCI ? (isMacOS ? 40 : 30) : 15;
+    const baseDelay = isCI ? (isMacOS ? 50 : 25) : 20;
+    const maxDelay = isCI ? (isMacOS ? 300 : 120) : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
@@ -234,9 +235,9 @@ class ExcelFormatter {
         try {
           const stats = fs.statSync(outputPath);
           if (stats.size > 0) {
-            // macOSでは最小限の安定化待機
+            // macOS CI環境での追加安定化待機
             if (isMacOS && isCI) {
-              await new Promise((resolve) => setTimeout(resolve, 10));
+              await new Promise((resolve) => setTimeout(resolve, 20));
             }
             return;
           }
