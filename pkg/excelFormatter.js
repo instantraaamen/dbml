@@ -223,10 +223,10 @@ class ExcelFormatter {
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
     const isMacOS = process.platform === 'darwin';
     
-    // macOSでは追加の待機時間が必要
-    const maxRetries = isCI ? (isMacOS ? 60 : 40) : 20;
-    const baseDelay = isCI ? (isMacOS ? 75 : 50) : 25;
-    const maxDelay = isCI ? (isMacOS ? 750 : 500) : 250;
+    // テストタイムアウト（5秒）を考慮した控えめな設定
+    const maxRetries = isCI ? (isMacOS ? 25 : 20) : 15;
+    const baseDelay = isCI ? (isMacOS ? 40 : 30) : 20;
+    const maxDelay = isCI ? (isMacOS ? 200 : 150) : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
@@ -234,9 +234,9 @@ class ExcelFormatter {
         try {
           const stats = fs.statSync(outputPath);
           if (stats.size > 0) {
-            // macOSでは追加の安定化待機
+            // macOSでは最小限の安定化待機
             if (isMacOS && isCI) {
-              await new Promise((resolve) => setTimeout(resolve, 50));
+              await new Promise((resolve) => setTimeout(resolve, 10));
             }
             return;
           }
@@ -245,8 +245,8 @@ class ExcelFormatter {
         }
       }
 
-      // 指数的バックオフで待機（macOS CI環境では最大750ms）
-      const delay = Math.min(baseDelay * Math.pow(1.5, attempt), maxDelay);
+      // 指数的バックオフで待機（テストタイムアウトを考慮）
+      const delay = Math.min(baseDelay * Math.pow(1.3, attempt), maxDelay);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 

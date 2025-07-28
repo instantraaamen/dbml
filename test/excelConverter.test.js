@@ -13,19 +13,19 @@ async function waitForFileReady(filePath) {
     process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
   const isMacOS = process.platform === 'darwin';
   
-  // macOSでは追加のリトライが必要
-  const maxRetries = isCI ? (isMacOS ? 45 : 30) : 15;
-  const baseDelay = isCI ? (isMacOS ? 60 : 40) : 20;
-  const maxDelay = isCI ? (isMacOS ? 600 : 400) : 200;
+  // テストタイムアウト（5秒）を考慮した控えめな設定
+  const maxRetries = isCI ? (isMacOS ? 20 : 15) : 10;
+  const baseDelay = isCI ? (isMacOS ? 30 : 25) : 15;
+  const maxDelay = isCI ? (isMacOS ? 150 : 100) : 80;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {
       try {
         const stats = fs.statSync(filePath);
         if (stats.size > 0) {
-          // macOSでは追加の安定化待機
+          // macOSでは最小限の安定化待機
           if (isMacOS && isCI) {
-            await new Promise((resolve) => setTimeout(resolve, 25));
+            await new Promise((resolve) => setTimeout(resolve, 5));
           }
           return;
         }
@@ -34,7 +34,7 @@ async function waitForFileReady(filePath) {
       }
     }
 
-    const delay = Math.min(baseDelay * Math.pow(1.4, attempt), maxDelay);
+    const delay = Math.min(baseDelay * Math.pow(1.2, attempt), maxDelay);
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
