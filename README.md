@@ -1,7 +1,7 @@
 # DBML Converter Extensions
 
 ![CI](https://github.com/instantraaamen/dbml/workflows/%F0%9F%94%84%20Continuous%20Integration/badge.svg)
-![Node.js Version](https://img.shields.io/badge/node-18%20%7C%2020%20%7C%2022-brightgreen)
+![Node.js Version](https://img.shields.io/badge/node-20%20%7C%2022-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -17,7 +17,7 @@ This is an **extension package** for [DBML CLI](https://github.com/holistics/dbm
 - 📊 **Native Excel (XLSX) export** with professional styling
 - 🎨 **Beautiful table formatting** with headers, borders, and auto-width
 - 🌏 **Japanese language support** for headers and content
-- 🚀 **Cross-platform compatibility** (Windows, macOS, Linux)
+- 🚀 **Cross-platform compatibility** (Linux, with Ubuntu LTS focus)
 
 ## 🔧 DBML Standard Conversions (Official @dbml/cli)
 

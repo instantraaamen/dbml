@@ -44,11 +44,6 @@ class ExcelFormatter {
       const outputDir = path.dirname(outputPath);
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
-        // macOSでのCI環境での安定化待機
-        if (process.platform === 'darwin') {
-          const stabilizeDelay = isCI ? 25 : 10;
-          await new Promise((resolve) => setTimeout(resolve, stabilizeDelay));
-        }
       }
 
       await this.workbook.xlsx.writeFile(outputPath);
@@ -219,15 +214,14 @@ class ExcelFormatter {
    * @private
    */
   async _waitForFileCreation(outputPath) {
-    // CI環境とプラットフォームの検出
+    // CI環境の検出
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-    const isMacOS = process.platform === 'darwin';
 
-    // macOS CI環境のファイルシステム特性を考慮した設定
-    const maxRetries = isCI ? (isMacOS ? 40 : 30) : 15;
-    const baseDelay = isCI ? (isMacOS ? 50 : 25) : 20;
-    const maxDelay = isCI ? (isMacOS ? 300 : 120) : 100;
+    // CI環境では安定性を重視した設定
+    const maxRetries = isCI ? 30 : 15;
+    const baseDelay = isCI ? 25 : 20;
+    const maxDelay = isCI ? 120 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
@@ -235,10 +229,6 @@ class ExcelFormatter {
         try {
           const stats = fs.statSync(outputPath);
           if (stats.size > 0) {
-            // macOS CI環境での追加安定化待機
-            if (isMacOS && isCI) {
-              await new Promise((resolve) => setTimeout(resolve, 20));
-            }
             return;
           }
         } catch (error) {
@@ -254,7 +244,7 @@ class ExcelFormatter {
     // 最終確認
     if (!fs.existsSync(outputPath)) {
       throw new Error(
-        `Excel file was not created after ${maxRetries} attempts: ${outputPath} (CI: ${isCI}, macOS: ${isMacOS})`
+        `Excel file was not created after ${maxRetries} attempts: ${outputPath} (CI: ${isCI})`
       );
     }
 
