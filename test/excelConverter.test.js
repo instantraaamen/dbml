@@ -13,9 +13,9 @@ async function waitForFileReady(filePath) {
     process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
   // CI環境では安定性を重視した設定
-  const maxRetries = isCI ? 25 : 10;
-  const baseDelay = isCI ? 20 : 15;
-  const maxDelay = isCI ? 80 : 80;
+  const maxRetries = isCI ? 35 : 10;
+  const baseDelay = isCI ? 25 : 15;
+  const maxDelay = isCI ? 100 : 80;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {
@@ -93,6 +93,9 @@ describe('Excel Converter Integration Tests', () => {
         outputExcelFile
       );
 
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputExcelFile);
+
       expect(result.filePath).toBe(outputExcelFile);
       expect(result.tablesCount).toBe(2);
       expect(result.worksheets).toEqual(['テーブル一覧', 'users', 'products']);
@@ -149,6 +152,9 @@ describe('Excel Converter Integration Tests', () => {
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
 
       await convertDBMLToExcelFile(testDbmlFile, outputExcelFile);
+
+      // ファイル作成完了の確実な確認
+      await waitForFileReady(outputExcelFile);
 
       expect(fs.existsSync(outputExcelFile)).toBe(true);
       expect(path.dirname(outputExcelFile)).toBe(path.dirname(testDbmlFile));

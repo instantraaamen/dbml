@@ -219,9 +219,9 @@ class ExcelFormatter {
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
     // CI環境では安定性を重視した設定
-    const maxRetries = isCI ? 30 : 15;
-    const baseDelay = isCI ? 25 : 20;
-    const maxDelay = isCI ? 120 : 100;
+    const maxRetries = isCI ? 40 : 15;
+    const baseDelay = isCI ? 30 : 20;
+    const maxDelay = isCI ? 150 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
