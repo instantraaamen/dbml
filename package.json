@@ -1,15 +1,16 @@
 {
-  "name": "dbml-to-excel-converter",
+  "name": "dbml-converter-extensions",
   "version": "1.0.0",
-  "description": "Convert DBML files to Excel-friendly CSV format",
+  "description": "Extended DBML conversion utilities - CSV and Excel output with enhanced formatting",
   "main": "pkg/dbmlToExcel.js",
   "bin": {
-    "dbml-to-excel": "pkg/cli.js"
+    "dbml-convert": "pkg/cli.js"
   },
   "files": [
     "pkg/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "conversion_guide.md"
   ],
   "scripts": {
     "convert": "node pkg/cli.js",
@@ -24,14 +25,20 @@
   },
   "keywords": [
     "dbml",
+    "dbml-cli",
     "excel",
+    "xlsx",
     "csv",
     "database",
     "converter",
     "cli",
     "database-modeling",
     "schema",
-    "export"
+    "export",
+    "extensions",
+    "postgres",
+    "mysql",
+    "sqlite"
   ],
   "author": "",
   "license": "MIT",
