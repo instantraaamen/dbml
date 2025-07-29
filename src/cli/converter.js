@@ -27,14 +27,14 @@ async function convertToFormat(inputPath, outputPath, format, options = {}) {
 
   // 形式別の変換処理
   switch (format.toLowerCase()) {
-  case 'csv':
-    return await convertToCSV(normalizedDb, resolvedOutputPath, options);
+    case 'csv':
+      return await convertToCSV(normalizedDb, resolvedOutputPath, options);
 
-  case 'xlsx':
-    return await convertToExcel(normalizedDb, resolvedOutputPath, options);
+    case 'xlsx':
+      return await convertToExcel(normalizedDb, resolvedOutputPath, options);
 
-  default:
-    throw new Error(`Unsupported format: ${format}`);
+    default:
+      throw new Error(`Unsupported format: ${format}`);
   }
 }
 

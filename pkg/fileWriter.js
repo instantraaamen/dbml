@@ -22,6 +22,10 @@ function ensureDirectoryExists(dirPath) {
  * @param {string} csvContent - CSV内容
  */
 function writeCSVFile(filePath, csvContent) {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   fs.writeFileSync(filePath, csvContent, 'utf8');
 }
 
