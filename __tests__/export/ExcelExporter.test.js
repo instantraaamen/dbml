@@ -2,63 +2,26 @@ const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 const ExcelExporter = require('../../src/export/ExcelExporter');
+const { createUniqueTestDir, cleanupTestDir, waitForFileReady } = require('../../test/helpers/testUtils');
 
-// テスト用の一時ディレクトリ
-const TEST_DIR = path.join(__dirname, '../temp');
+// テスト用の一時ディレクトリ（各テストで独立）
+let TEST_DIR;
 
-// ファイル作成完了待機のヘルパー関数
-async function waitForFileReady(filePath) {
-  const isCI =
-    process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-  const maxRetries = isCI ? 35 : 10;
-  const baseDelay = isCI ? 25 : 15;
-  const maxDelay = isCI ? 100 : 80;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    if (fs.existsSync(filePath)) {
-      try {
-        const stats = fs.statSync(filePath);
-        if (stats.size > 0) {
-          return;
-        }
-      } catch (error) {
-        // statSync失敗は無視して再試行
-      }
-    }
-
-    const delay = Math.min(baseDelay * Math.pow(1.2, attempt), maxDelay);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }
-
-  throw new Error(
-    `File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI})`
-  );
-}
+// テストユーティリティからwaitForFileReadyを使用
 
 describe('ExcelExporter', () => {
   let exporter;
 
   beforeEach(() => {
     exporter = new ExcelExporter();
-
-    // テスト用ディレクトリを作成
-    if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
-    }
-    fs.mkdirSync(TEST_DIR, { recursive: true });
+    // 各テストで独立したディレクトリを作成
+    TEST_DIR = createUniqueTestDir('excelExporter');
   });
 
-  afterEach(() => {
-    // テスト用ファイルをクリーンアップ
-    if (fs.existsSync(TEST_DIR)) {
-      try {
-        fs.rmSync(TEST_DIR, { recursive: true, force: true });
-      } catch (error) {
-        console.warn(
-          'Warning: Could not clean up test directory:',
-          error.message
-        );
-      }
+  afterEach(async () => {
+    // テスト用ディレクトリをクリーンアップ
+    if (TEST_DIR) {
+      await cleanupTestDir(TEST_DIR);
     }
   });
 
@@ -226,9 +189,9 @@ describe('ExcelExporter', () => {
 
       // データ行の確認
       const dataRow = overviewSheet.getRow(2);
-      expect(dataRow.getCell(1).value).toBe('users');
-      expect(dataRow.getCell(2).value).toBe('ユーザー情報テーブル');
-      expect(dataRow.getCell(3).value).toBe(2);
+      expect(dataRow.getCell(1).value).toBe('test_table');
+      expect(dataRow.getCell(2).value).toBe('テストテーブル');
+      expect(dataRow.getCell(3).value).toBe(1);
     });
   });
 });

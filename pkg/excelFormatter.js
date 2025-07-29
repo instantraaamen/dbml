@@ -39,6 +39,9 @@ class ExcelFormatter {
     }
 
     // ファイル保存（エラーハンドリング強化）
+    // CI環境の検出（スコープを広げる）
+    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
     try {
       // 出力ディレクトリの存在確認と作成（CI環境での競合状態を考慮）
       const outputDir = path.dirname(outputPath);
@@ -54,7 +57,6 @@ class ExcelFormatter {
       }
 
       // より信頼性の高いExcel書き込み処理（CI環境対応）
-      const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
       
       if (isCI) {
         // CI環境: バッファ経由で書き込み（より確実）
