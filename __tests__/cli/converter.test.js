@@ -4,7 +4,11 @@ const {
   convertToFormat,
   resolveOutputPath
 } = require('../../src/cli/converter');
-const { createUniqueTestDir, cleanupTestDir, waitForFileReady } = require('../../test/helpers/testUtils');
+const {
+  createUniqueTestDir,
+  cleanupTestDir,
+  waitForFileReady
+} = require('../../test/helpers/testUtils');
 
 // テスト用の一時ディレクトリ（各テストで独立）
 let TEST_DIR;

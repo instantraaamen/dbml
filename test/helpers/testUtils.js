@@ -9,15 +9,15 @@ const path = require('path');
 function createUniqueTestDir(testName = '') {
   const uniqueId = Math.random().toString(36).substring(2, 10);
   const timestamp = Date.now().toString(36);
-  const dirName = testName 
+  const dirName = testName
     ? `test-${testName.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}-${uniqueId}`
     : `test-${timestamp}-${uniqueId}`;
-  
+
   const testDir = path.join(__dirname, '../temp', dirName);
-  
+
   // ディレクトリを作成
   fs.mkdirSync(testDir, { recursive: true });
-  
+
   return testDir;
 }
 
@@ -29,10 +29,10 @@ async function cleanupTestDir(testDir) {
   if (!testDir || !testDir.includes('temp')) {
     return; // 安全性チェック
   }
-  
+
   const maxRetries = 5;
   const baseDelay = 50;
-  
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       if (fs.existsSync(testDir)) {
@@ -41,11 +41,15 @@ async function cleanupTestDir(testDir) {
       return; // 成功
     } catch (error) {
       if (attempt === maxRetries - 1) {
-        console.warn(`Warning: Could not clean up test directory: ${error.message}`);
+        console.warn(
+          `Warning: Could not clean up test directory: ${error.message}`
+        );
         return;
       }
       // リトライ前に少し待機
-      await new Promise(resolve => setTimeout(resolve, baseDelay * (attempt + 1)));
+      await new Promise((resolve) =>
+        setTimeout(resolve, baseDelay * (attempt + 1))
+      );
     }
   }
 }
@@ -57,10 +61,11 @@ async function cleanupTestDir(testDir) {
  * @returns {Promise<void>}
  */
 async function waitForFileReady(filePath, maxRetries = 20) {
-  const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-  const retries = isCI ? Math.max(maxRetries, 40) : maxRetries;
-  const baseDelay = isCI ? 50 : 25;
-  const maxDelay = isCI ? 200 : 100;
+  const isCI =
+    process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  const retries = isCI ? Math.max(maxRetries, 60) : maxRetries;
+  const baseDelay = isCI ? 100 : 25;
+  const maxDelay = isCI ? 500 : 100;
 
   for (let attempt = 0; attempt < retries; attempt++) {
     if (fs.existsSync(filePath)) {
@@ -88,8 +93,10 @@ async function waitForFileReady(filePath, maxRetries = 20) {
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
+  const dirExists = fs.existsSync(path.dirname(filePath));
+  const dirContent = dirExists ? fs.readdirSync(path.dirname(filePath)) : [];
   throw new Error(
-    `File not ready after ${retries} attempts: ${filePath} (CI: ${isCI})`
+    `File not ready after ${retries} attempts: ${filePath} (CI: ${isCI}). Directory exists: ${dirExists}, Directory content: ${JSON.stringify(dirContent)}`
   );
 }
 

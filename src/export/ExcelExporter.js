@@ -61,7 +61,8 @@ class ExcelExporter {
     }
 
     // CI環境の検出（スコープを広げる）
-    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+    const isCI =
+      process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
     try {
       // 出力ディレクトリの存在確認と作成（CI環境での競合状態を考慮）
@@ -78,19 +79,19 @@ class ExcelExporter {
       }
 
       // より信頼性の高いExcel書き込み処理（CI環境対応）
-      
+
       if (isCI) {
         // CI環境: バッファ経由で書き込み（より確実）
         const buffer = await this.workbook.xlsx.writeBuffer();
         fs.writeFileSync(outputPath, buffer);
-        
-        // 書き込み確認とfsync
-        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // 書き込み確認とfsync（CI環境でより強力な同期）
+        await new Promise((resolve) => setTimeout(resolve, 500));
         try {
           const fd = fs.openSync(outputPath, 'r+');
           fs.fsyncSync(fd);
           fs.closeSync(fd);
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (syncError) {
           // fsync失敗時は警告のみ
           console.warn('fsync failed, continuing:', syncError.message);
@@ -102,8 +103,8 @@ class ExcelExporter {
       }
 
       // ファイル作成完了の確実な確認
-      // 書き込み直後は少し待機してから確認開始
-      await new Promise((resolve) => setTimeout(resolve, isCI ? 500 : 100));
+      // 書き込み直後は十分な待機時間を設ける
+      await new Promise((resolve) => setTimeout(resolve, isCI ? 1000 : 100));
       await this._waitForFileCreation(outputPath);
 
       return {
@@ -261,9 +262,9 @@ class ExcelExporter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    const maxRetries = isCI ? 50 : 30;
-    const baseDelay = isCI ? 200 : 50;
-    const maxDelay = isCI ? 1000 : 300;
+    const maxRetries = isCI ? 100 : 30;
+    const baseDelay = isCI ? 500 : 50;
+    const maxDelay = isCI ? 2000 : 300;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認（CI環境ではより厳密）
@@ -294,8 +295,12 @@ class ExcelExporter {
     }
 
     if (!fs.existsSync(outputPath)) {
+      const dirExists = fs.existsSync(path.dirname(outputPath));
+      const dirContent = dirExists
+        ? fs.readdirSync(path.dirname(outputPath))
+        : [];
       throw new Error(
-        `Excel file was not created after ${maxRetries} attempts: ${outputPath} (CI: ${isCI})`
+        `Excel file was not created after ${maxRetries} attempts: ${outputPath} (CI: ${isCI}). Directory exists: ${dirExists}, Directory content: ${JSON.stringify(dirContent)}`
       );
     }
 

@@ -2,7 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const { promisify } = require('util');
-const { createUniqueTestDir, cleanupTestDir, waitForFileReady } = require('../../test/helpers/testUtils');
+const {
+  createUniqueTestDir,
+  cleanupTestDir,
+  waitForFileReady
+} = require('../../test/helpers/testUtils');
 
 const execAsync = promisify(exec);
 
@@ -145,7 +149,7 @@ describe('CLI Integration Tests', () => {
     test('should use default output path when not specified', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
-      
+
       // Ensure file is fully written to disk
       await waitForFileReady(testDbmlFile);
 
