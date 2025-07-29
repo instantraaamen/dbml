@@ -75,6 +75,17 @@ class ExcelExporter {
       }
 
       await this.workbook.xlsx.writeFile(outputPath);
+      
+      // CI環境での書き込み完了を確実にするため、ファイルハンドルを同期
+      if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+        try {
+          const fd = fs.openSync(outputPath, 'r+');
+          fs.fsyncSync(fd);
+          fs.closeSync(fd);
+        } catch (syncError) {
+          // fsync失敗は無視（ファイルが存在しない場合など）
+        }
+      }
 
       // ファイル作成完了の確実な確認
       await this._waitForFileCreation(outputPath);
@@ -234,9 +245,9 @@ class ExcelExporter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    const maxRetries = isCI ? 40 : 15;
-    const baseDelay = isCI ? 30 : 20;
-    const maxDelay = isCI ? 150 : 100;
+    const maxRetries = isCI ? 80 : 15;
+    const baseDelay = isCI ? 50 : 20;
+    const maxDelay = isCI ? 300 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       if (fs.existsSync(outputPath)) {

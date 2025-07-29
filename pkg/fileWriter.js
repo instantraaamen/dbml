@@ -11,8 +11,15 @@ const path = require('path');
  * @param {string} dirPath - ディレクトリパス
  */
 function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  } catch (mkdirError) {
+    // 他のプロセスが同時にディレクトリを作成した場合を考慮
+    if (mkdirError.code !== 'EEXIST' && !fs.existsSync(dirPath)) {
+      throw mkdirError;
+    }
   }
 }
 

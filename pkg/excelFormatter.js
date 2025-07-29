@@ -54,6 +54,17 @@ class ExcelFormatter {
       }
 
       await this.workbook.xlsx.writeFile(outputPath);
+      
+      // CI環境での書き込み完了を確実にするため、ファイルハンドルを同期
+      if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+        try {
+          const fd = fs.openSync(outputPath, 'r+');
+          fs.fsyncSync(fd);
+          fs.closeSync(fd);
+        } catch (syncError) {
+          // fsync失敗は無視（ファイルが存在しない場合など）
+        }
+      }
     } catch (error) {
       throw new Error(`Failed to write Excel file: ${error.message}`);
     }
@@ -225,10 +236,10 @@ class ExcelFormatter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    // CI環境では安定性を重視した設定
-    const maxRetries = isCI ? 40 : 15;
-    const baseDelay = isCI ? 30 : 20;
-    const maxDelay = isCI ? 150 : 100;
+    // CI環境では安定性を重視した設定（大幅強化）
+    const maxRetries = isCI ? 80 : 15;
+    const baseDelay = isCI ? 50 : 20;
+    const maxDelay = isCI ? 300 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
