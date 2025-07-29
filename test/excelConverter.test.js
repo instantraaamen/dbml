@@ -12,10 +12,10 @@ async function waitForFileReady(filePath) {
   const isCI =
     process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-  // CI環境では極めて保守的な設定（GitHub Actionsの制約を考慮）
-  const maxRetries = isCI ? 120 : 10;
-  const baseDelay = isCI ? 100 : 15;
-  const maxDelay = isCI ? 500 : 80;
+  // CI環境では段階的な待機戦略
+  const maxRetries = isCI ? 50 : 10;
+  const baseDelay = isCI ? 200 : 15;
+  const maxDelay = isCI ? 1000 : 80;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (fs.existsSync(filePath)) {

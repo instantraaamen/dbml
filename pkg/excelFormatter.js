@@ -53,29 +53,37 @@ class ExcelFormatter {
         }
       }
 
-      await this.workbook.xlsx.writeFile(outputPath);
-
-      // CI環境では追加の待機時間を確保
-      const postWriteDelay = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true' ? 200 : 50;
-      await new Promise((resolve) => setTimeout(resolve, postWriteDelay));
-
-      // CI環境での書き込み完了を確実にするため、ファイルハンドルを同期
-      if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+      // より信頼性の高いExcel書き込み処理（CI環境対応）
+      const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+      
+      if (isCI) {
+        // CI環境: バッファ経由で書き込み（より確実）
+        const buffer = await this.workbook.xlsx.writeBuffer();
+        fs.writeFileSync(outputPath, buffer);
+        
+        // 書き込み確認とfsync
+        await new Promise((resolve) => setTimeout(resolve, 300));
         try {
           const fd = fs.openSync(outputPath, 'r+');
           fs.fsyncSync(fd);
           fs.closeSync(fd);
-          // fsync後さらに短時間待機
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 200));
         } catch (syncError) {
-          // fsync失敗は無視（ファイルが存在しない場合など）
+          // fsync失敗時は警告のみ
+          console.warn('fsync failed, continuing:', syncError.message);
         }
+      } else {
+        // ローカル環境: 通常の書き込み
+        await this.workbook.xlsx.writeFile(outputPath);
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
     } catch (error) {
       throw new Error(`Failed to write Excel file: ${error.message}`);
     }
 
     // ファイル作成完了の確実な確認（リトライ機能付き）
+    // 書き込み直後は少し待機してから確認開始
+    await new Promise((resolve) => setTimeout(resolve, isCI ? 500 : 100));
     await this._waitForFileCreation(outputPath);
 
     return {
@@ -242,26 +250,36 @@ class ExcelFormatter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    // CI環境では極めて保守的な設定（GitHub Actionsの制約を考慮）
-    const maxRetries = isCI ? 120 : 15;
-    const baseDelay = isCI ? 100 : 20;
-    const maxDelay = isCI ? 500 : 100;
+    // CI環境では段階的な待機戦略
+    const maxRetries = isCI ? 50 : 15;
+    const baseDelay = isCI ? 200 : 20;
+    const maxDelay = isCI ? 1000 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      // ファイル存在確認
+      // ファイル存在確認（CI環境ではより厳密）
       if (fs.existsSync(outputPath)) {
         try {
           const stats = fs.statSync(outputPath);
           if (stats.size > 0) {
-            return;
+            // CI環境では追加の読み込み可能性チェック
+            if (isCI) {
+              try {
+                fs.readFileSync(outputPath, { flag: 'r' });
+                return; // 読み込み成功
+              } catch (readError) {
+                // 読み込み失敗時は継続
+              }
+            } else {
+              return; // ローカル環境では存在とサイズのみチェック
+            }
           }
         } catch (error) {
           // statSync失敗は無視して再試行
         }
       }
 
-      // 指数的バックオフで待機（テストタイムアウトを考慮）
-      const delay = Math.min(baseDelay * Math.pow(1.3, attempt), maxDelay);
+      // 段階的バックオフ待機
+      const delay = Math.min(baseDelay * Math.pow(1.5, attempt), maxDelay);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
