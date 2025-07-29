@@ -2,41 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 const { convertDBMLToExcelFile } = require('../pkg/excelConverter');
+const {
+  createUniqueTestDir,
+  cleanupTestDir,
+  waitForFileReady
+} = require('./helpers/testUtils');
 
-// テスト用の一時ディレクトリ
-const TEST_DIR = path.join(__dirname, 'temp');
-
-// ファイル作成完了待機のヘルパー関数
-async function waitForFileReady(filePath) {
-  // CI環境の検出
-  const isCI =
-    process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-
-  // CI環境では安定性を重視した設定
-  const maxRetries = isCI ? 35 : 10;
-  const baseDelay = isCI ? 25 : 15;
-  const maxDelay = isCI ? 100 : 80;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    if (fs.existsSync(filePath)) {
-      try {
-        const stats = fs.statSync(filePath);
-        if (stats.size > 0) {
-          return;
-        }
-      } catch (error) {
-        // statSync失敗は無視して再試行
-      }
-    }
-
-    const delay = Math.min(baseDelay * Math.pow(1.2, attempt), maxDelay);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }
-
-  throw new Error(
-    `File not ready after ${maxRetries} attempts: ${filePath} (CI: ${isCI})`
-  );
-}
+// テスト用の一時ディレクトリ（各テストで独立）
+let TEST_DIR;
 
 // テスト用のDBMLファイル
 const TEST_DBML_CONTENT = `
@@ -60,24 +33,14 @@ Table products {
 
 describe('Excel Converter Integration Tests', () => {
   beforeEach(() => {
-    // テスト用ディレクトリを作成
-    if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
-    }
-    fs.mkdirSync(TEST_DIR, { recursive: true });
+    // 各テストで独立したディレクトリを作成
+    TEST_DIR = createUniqueTestDir('excelConverter');
   });
 
-  afterEach(() => {
-    // テスト用ファイルをクリーンアップ
-    if (fs.existsSync(TEST_DIR)) {
-      try {
-        fs.rmSync(TEST_DIR, { recursive: true, force: true });
-      } catch (error) {
-        console.warn(
-          'Warning: Could not clean up test directory:',
-          error.message
-        );
-      }
+  afterEach(async () => {
+    // テスト用ディレクトリをクリーンアップ
+    if (TEST_DIR) {
+      await cleanupTestDir(TEST_DIR);
     }
   });
 

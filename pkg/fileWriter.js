@@ -11,8 +11,15 @@ const path = require('path');
  * @param {string} dirPath - ディレクトリパス
  */
 function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  } catch (mkdirError) {
+    // 他のプロセスが同時にディレクトリを作成した場合を考慮
+    if (mkdirError.code !== 'EEXIST' && !fs.existsSync(dirPath)) {
+      throw mkdirError;
+    }
   }
 }
 
@@ -22,6 +29,10 @@ function ensureDirectoryExists(dirPath) {
  * @param {string} csvContent - CSV内容
  */
 function writeCSVFile(filePath, csvContent) {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   fs.writeFileSync(filePath, csvContent, 'utf8');
 }
 

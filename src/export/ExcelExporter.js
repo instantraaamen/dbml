@@ -1,44 +1,65 @@
+const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
-const ExcelJS = require('exceljs');
 
 /**
- * ExcelFormatter - DBML解析データをExcel形式で出力
- * 単一責任: Excel形式での出力とファイル生成
+ * Excel形式でのエクスポート機能を提供するクラス
+ * @dbml/cliのExporterパターンに準拠
  */
-class ExcelFormatter {
+class ExcelExporter {
   constructor() {
+    this.format = 'xlsx';
     this.workbook = null;
   }
 
   /**
-   * DBML解析データをExcelファイルに変換
-   * @param {Object} dbmlData - 解析済みDBMLデータ
-   * @param {string} outputPath - 出力ファイルパス
-   * @returns {Promise<Object>} 変換結果
+   * DBMLデータをExcel形式で出力
+   * @param {Object} database - DBMLデータベースオブジェクト
+   * @param {Object} options - エクスポートオプション
+   * @returns {Object} エクスポート結果
    */
-  async formatToExcel(dbmlData, outputPath) {
-    this._validateInputs(dbmlData, outputPath);
+  async export(database) {
+    const { tables } = database;
+
+    if (!tables || !Array.isArray(tables)) {
+      throw new Error('Invalid database structure: tables array required');
+    }
 
     // ワークブック作成
     this.workbook = new ExcelJS.Workbook();
-    this.workbook.creator = 'DBML to Excel Converter';
+    this.workbook.creator = 'DBML Converter Extensions';
     this.workbook.created = new Date();
 
-    // ワークシート作成
     const worksheets = [];
 
     // 1. テーブル一覧シート
-    this._createOverviewWorksheet(dbmlData.tables);
+    this._createOverviewWorksheet(tables);
     worksheets.push('テーブル一覧');
 
     // 2. 各テーブル用シート
-    for (const table of dbmlData.tables) {
+    for (const table of tables) {
       this._createTableWorksheet(table);
       worksheets.push(table.name);
     }
 
-    // ファイル保存（エラーハンドリング強化）
+    return {
+      format: this.format,
+      workbook: this.workbook,
+      worksheets: worksheets,
+      tablesCount: tables.length
+    };
+  }
+
+  /**
+   * ファイルに保存
+   * @param {string} outputPath - 出力ファイルパス
+   * @returns {Promise<Object>} 保存結果
+   */
+  async saveToFile(outputPath) {
+    if (!this.workbook) {
+      throw new Error('No workbook to save. Call export() first.');
+    }
+
     // CI環境の検出（スコープを広げる）
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
@@ -80,42 +101,24 @@ class ExcelFormatter {
         await this.workbook.xlsx.writeFile(outputPath);
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
+
+      // ファイル作成完了の確実な確認
+      // 書き込み直後は十分な待機時間を設ける
+      await new Promise((resolve) => setTimeout(resolve, isCI ? 1000 : 100));
+      await this._waitForFileCreation(outputPath);
+
+      return {
+        filePath: outputPath,
+        format: this.format
+      };
     } catch (error) {
       throw new Error(`Failed to write Excel file: ${error.message}`);
-    }
-
-    // ファイル作成完了の確実な確認（リトライ機能付き）
-    // 書き込み直後は十分な待機時間を設ける
-    await new Promise((resolve) => setTimeout(resolve, isCI ? 1000 : 100));
-    await this._waitForFileCreation(outputPath);
-
-    return {
-      filePath: outputPath,
-      tablesCount: dbmlData.tables.length,
-      worksheets: worksheets
-    };
-  }
-
-  /**
-   * 入力値の検証
-   * @private
-   */
-  _validateInputs(dbmlData, outputPath) {
-    if (!dbmlData || !dbmlData.tables || !Array.isArray(dbmlData.tables)) {
-      throw new Error('Invalid DBML data provided');
-    }
-
-    if (
-      !outputPath ||
-      typeof outputPath !== 'string' ||
-      outputPath.trim() === ''
-    ) {
-      throw new Error('Invalid output path provided');
     }
   }
 
   /**
    * テーブル一覧ワークシートの作成
+   * @param {Array} tables - テーブル配列
    * @private
    */
   _createOverviewWorksheet(tables) {
@@ -125,7 +128,7 @@ class ExcelFormatter {
     const headers = ['テーブル名', '説明', 'フィールド数'];
     worksheet.addRow(headers);
 
-    // ヘッダーのスタイリング（実際のカラム数のみ）
+    // ヘッダーのスタイリング
     this._styleHeaderRow(worksheet, 1, headers.length);
 
     // データ行の追加
@@ -136,12 +139,13 @@ class ExcelFormatter {
     // 列幅の自動調整
     this._autoAdjustColumnWidths(worksheet);
 
-    // 罫線の追加（データ領域全体）
+    // 罫線の追加
     this._addDataBorders(worksheet, tables.length + 1, headers.length);
   }
 
   /**
    * 個別テーブルワークシートの作成
+   * @param {Object} table - テーブルオブジェクト
    * @private
    */
   _createTableWorksheet(table) {
@@ -160,12 +164,11 @@ class ExcelFormatter {
     ];
     worksheet.addRow(headers);
 
-    // ヘッダーのスタイリング（実際のカラム数のみ）
+    // ヘッダーのスタイリング
     this._styleHeaderRow(worksheet, 1, headers.length);
 
     // フィールドデータの追加
     table.fields.forEach((field) => {
-      // typeがオブジェクトの場合は文字列表現を使用
       const typeDisplay =
         typeof field.type === 'object' && field.type.type_name
           ? field.type.type_name
@@ -186,12 +189,13 @@ class ExcelFormatter {
     // 列幅の自動調整
     this._autoAdjustColumnWidths(worksheet);
 
-    // 罫線の追加（データ領域全体）
+    // 罫線の追加
     this._addDataBorders(worksheet, table.fields.length + 1, headers.length);
   }
 
   /**
    * 列幅の自動調整
+   * @param {Object} worksheet - ワークシート
    * @private
    */
   _autoAdjustColumnWidths(worksheet) {
@@ -208,7 +212,10 @@ class ExcelFormatter {
   }
 
   /**
-   * ヘッダー行のスタイリング（指定した列数のみ）
+   * ヘッダー行のスタイリング
+   * @param {Object} worksheet - ワークシート
+   * @param {number} rowNumber - 行番号
+   * @param {number} columnCount - 列数
    * @private
    */
   _styleHeaderRow(worksheet, rowNumber, columnCount) {
@@ -226,11 +233,13 @@ class ExcelFormatter {
   }
 
   /**
-   * データ領域への罫線追加（実際のデータ範囲のみ）
+   * データ領域への罫線追加
+   * @param {Object} worksheet - ワークシート
+   * @param {number} rowCount - 行数
+   * @param {number} columnCount - 列数
    * @private
    */
   _addDataBorders(worksheet, rowCount, columnCount) {
-    // 実際のデータ範囲に対してのみ罫線を適用
     for (let row = 1; row <= rowCount; row++) {
       for (let col = 1; col <= columnCount; col++) {
         const cell = worksheet.getCell(row, col);
@@ -245,15 +254,14 @@ class ExcelFormatter {
   }
 
   /**
-   * ファイル作成完了の確実な待機（リトライ機能付き）
+   * ファイル作成完了の確実な待機
+   * @param {string} outputPath - 出力ファイルパス
    * @private
    */
   async _waitForFileCreation(outputPath) {
-    // CI環境の検出
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    // 段階的な待機戦略（CI環境でより積極的なリトライ）
     const maxRetries = isCI ? 100 : 30;
     const baseDelay = isCI ? 500 : 50;
     const maxDelay = isCI ? 2000 : 300;
@@ -286,7 +294,6 @@ class ExcelFormatter {
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
-    // 最終確認（詳細なエラー情報付き）
     if (!fs.existsSync(outputPath)) {
       const dirExists = fs.existsSync(path.dirname(outputPath));
       const dirContent = dirExists
@@ -304,4 +311,4 @@ class ExcelFormatter {
   }
 }
 
-module.exports = { ExcelFormatter };
+module.exports = ExcelExporter;

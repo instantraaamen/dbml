@@ -14,7 +14,7 @@ module.exports = {
     'no-console': 'off',
     quotes: ['error', 'single', { avoidEscape: true }],
     semi: ['error', 'always'],
-    indent: ['error', 2],
+    indent: ['error', 2, { SwitchCase: 1 }],
     'comma-dangle': ['error', 'never'],
     'eol-last': ['error', 'always']
   }
