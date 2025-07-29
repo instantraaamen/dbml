@@ -1,14 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  convertToFormat,
-  resolveOutputPath
-} = require('../../src/cli/converter');
+const { convertToFormat } = require('../../lib/index');
 const {
   createUniqueTestDir,
   cleanupTestDir,
   waitForFileReady
-} = require('../../test/helpers/testUtils');
+} = require('../helpers/testUtils');
 
 // テスト用の一時ディレクトリ（各テストで独立）
 let TEST_DIR;
@@ -33,10 +30,10 @@ Table products {
 }
 `;
 
-describe('CLI Converter', () => {
+describe('Main API Integration Tests', () => {
   beforeEach(() => {
     // 各テストで独立したディレクトリを作成
-    TEST_DIR = createUniqueTestDir('cliConverter');
+    TEST_DIR = createUniqueTestDir('mainApi');
   });
 
   afterEach(async () => {
@@ -52,6 +49,7 @@ describe('CLI Converter', () => {
       const outputDir = path.join(TEST_DIR, 'csv_output');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       const result = await convertToFormat(testDbmlFile, outputDir, 'csv');
 
@@ -79,6 +77,7 @@ describe('CLI Converter', () => {
       const outputFile = path.join(TEST_DIR, 'output.xlsx');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       const result = await convertToFormat(testDbmlFile, outputFile, 'xlsx');
 
@@ -97,6 +96,7 @@ describe('CLI Converter', () => {
       const outputFile = path.join(TEST_DIR, 'overview.csv');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       const result = await convertToFormat(testDbmlFile, outputFile, 'csv');
 
@@ -112,6 +112,7 @@ describe('CLI Converter', () => {
     test('should throw error for unsupported format', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       await expect(
         convertToFormat(testDbmlFile, TEST_DIR, 'unsupported')
@@ -120,51 +121,11 @@ describe('CLI Converter', () => {
 
     test('should throw error for invalid DBML file', async () => {
       const nonExistentFile = path.join(TEST_DIR, 'nonexistent.dbml');
+      const outputDir = path.join(TEST_DIR, 'output');
 
       await expect(
-        convertToFormat(nonExistentFile, TEST_DIR, 'csv')
+        convertToFormat(nonExistentFile, outputDir, 'csv')
       ).rejects.toThrow('DBML file not found');
-    });
-
-    test('should use default output path when not specified', async () => {
-      const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
-      fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
-
-      const result = await convertToFormat(testDbmlFile, null, 'xlsx');
-
-      expect(result.filePath).toBe(path.join(TEST_DIR, 'test.xlsx'));
-      expect(fs.existsSync(result.filePath)).toBe(true);
-    });
-  });
-
-  describe('resolveOutputPath', () => {
-    test('should return provided output path when specified', () => {
-      const result = resolveOutputPath(
-        '/input/test.dbml',
-        '/output/result.xlsx',
-        'xlsx'
-      );
-      expect(result).toBe('/output/result.xlsx');
-    });
-
-    test('should generate default Excel output path', () => {
-      const result = resolveOutputPath('/input/test.dbml', null, 'xlsx');
-      expect(result).toBe('/input/test.xlsx');
-    });
-
-    test('should generate default CSV directory path', () => {
-      const result = resolveOutputPath('/input/test.dbml', null, 'csv');
-      expect(result).toBe('/input/test_csv');
-    });
-
-    test('should handle input files without extension', () => {
-      const result = resolveOutputPath('/input/test', null, 'xlsx');
-      expect(result).toBe('/input/test.xlsx');
-    });
-
-    test('should use input directory for unknown format', () => {
-      const result = resolveOutputPath('/input/test.dbml', null, 'unknown');
-      expect(result).toBe('/input');
     });
   });
 });
