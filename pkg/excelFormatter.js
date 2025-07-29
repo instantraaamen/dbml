@@ -54,16 +54,19 @@ class ExcelFormatter {
       }
 
       await this.workbook.xlsx.writeFile(outputPath);
-      
-      // ファイル書き込み完了を確実にするため短時間待機
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      
+
+      // CI環境では追加の待機時間を確保
+      const postWriteDelay = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true' ? 200 : 50;
+      await new Promise((resolve) => setTimeout(resolve, postWriteDelay));
+
       // CI環境での書き込み完了を確実にするため、ファイルハンドルを同期
       if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
         try {
           const fd = fs.openSync(outputPath, 'r+');
           fs.fsyncSync(fd);
           fs.closeSync(fd);
+          // fsync後さらに短時間待機
+          await new Promise((resolve) => setTimeout(resolve, 100));
         } catch (syncError) {
           // fsync失敗は無視（ファイルが存在しない場合など）
         }
@@ -239,10 +242,10 @@ class ExcelFormatter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    // CI環境では安定性を重視しつつパフォーマンスを考慮した設定
-    const maxRetries = isCI ? 60 : 15;
-    const baseDelay = isCI ? 30 : 20;
-    const maxDelay = isCI ? 200 : 100;
+    // CI環境では極めて保守的な設定（GitHub Actionsの制約を考慮）
+    const maxRetries = isCI ? 120 : 15;
+    const baseDelay = isCI ? 100 : 20;
+    const maxDelay = isCI ? 500 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
