@@ -65,8 +65,8 @@
   "jest": {
     "testEnvironment": "node",
     "testTimeout": 60000,
-    "maxWorkers": "50%",
-    "maxConcurrency": 3,
+    "maxWorkers": 2,
+    "maxConcurrency": 2,
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "src/**/*.js",

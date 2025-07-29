@@ -252,10 +252,10 @@ class ExcelFormatter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    // CI環境では段階的な待機戦略
-    const maxRetries = isCI ? 50 : 15;
-    const baseDelay = isCI ? 200 : 20;
-    const maxDelay = isCI ? 1000 : 100;
+    // 段階的な待機戦略（ローカル環境でも十分なリトライ）
+    const maxRetries = isCI ? 50 : 30;
+    const baseDelay = isCI ? 200 : 50;
+    const maxDelay = isCI ? 1000 : 300;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認（CI環境ではより厳密）

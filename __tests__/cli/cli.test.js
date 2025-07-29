@@ -2,11 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const { promisify } = require('util');
+const { createUniqueTestDir, cleanupTestDir, waitForFileReady } = require('../../test/helpers/testUtils');
 
 const execAsync = promisify(exec);
 
-// テスト用の一時ディレクトリ
-const TEST_DIR = path.join(__dirname, '../temp');
+// テスト用の一時ディレクトリ（各テストで独立）
+let TEST_DIR;
 
 // テスト用のDBMLファイル内容
 const TEST_DBML_CONTENT = `
@@ -32,24 +33,14 @@ describe('CLI Integration Tests', () => {
   const cliPath = path.join(__dirname, '../../bin/dbml-convert.js');
 
   beforeEach(() => {
-    // テスト用ディレクトリを作成
-    if (fs.existsSync(TEST_DIR)) {
-      fs.rmSync(TEST_DIR, { recursive: true, force: true });
-    }
-    fs.mkdirSync(TEST_DIR, { recursive: true });
+    // 各テストで独立したディレクトリを作成
+    TEST_DIR = createUniqueTestDir('cliIntegration');
   });
 
-  afterEach(() => {
-    // テスト用ファイルをクリーンアップ
-    if (fs.existsSync(TEST_DIR)) {
-      try {
-        fs.rmSync(TEST_DIR, { recursive: true, force: true });
-      } catch (error) {
-        console.warn(
-          'Warning: Could not clean up test directory:',
-          error.message
-        );
-      }
+  afterEach(async () => {
+    // テスト用ディレクトリをクリーンアップ
+    if (TEST_DIR) {
+      await cleanupTestDir(TEST_DIR);
     }
   });
 
@@ -82,6 +73,7 @@ describe('CLI Integration Tests', () => {
       const outputDir = path.join(TEST_DIR, 'csv_output');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       const { stdout } = await execAsync(
         `node ${cliPath} "${testDbmlFile}" "${outputDir}" --format csv`
@@ -100,6 +92,7 @@ describe('CLI Integration Tests', () => {
       const outputFile = path.join(TEST_DIR, 'output.xlsx');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       const { stdout } = await execAsync(
         `node ${cliPath} "${testDbmlFile}" "${outputFile}" --format xlsx`
@@ -114,6 +107,7 @@ describe('CLI Integration Tests', () => {
       const outputFile = path.join(TEST_DIR, 'output.xlsx');
 
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       const { stdout } = await execAsync(
         `node ${cliPath} "${testDbmlFile}" "${outputFile}" --format xlsx --verbose`
@@ -138,6 +132,7 @@ describe('CLI Integration Tests', () => {
     test('should handle invalid format', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      await waitForFileReady(testDbmlFile);
 
       try {
         await execAsync(`node ${cliPath} "${testDbmlFile}" --format invalid`);
@@ -150,6 +145,9 @@ describe('CLI Integration Tests', () => {
     test('should use default output path when not specified', async () => {
       const testDbmlFile = path.join(TEST_DIR, 'test.dbml');
       fs.writeFileSync(testDbmlFile, TEST_DBML_CONTENT);
+      
+      // Ensure file is fully written to disk
+      await waitForFileReady(testDbmlFile);
 
       const { stdout } = await execAsync(
         `node ${cliPath} "${testDbmlFile}" --format xlsx`

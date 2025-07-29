@@ -261,9 +261,9 @@ class ExcelExporter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    const maxRetries = isCI ? 50 : 15;
-    const baseDelay = isCI ? 200 : 20;
-    const maxDelay = isCI ? 1000 : 100;
+    const maxRetries = isCI ? 50 : 30;
+    const baseDelay = isCI ? 200 : 50;
+    const maxDelay = isCI ? 1000 : 300;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認（CI環境ではより厳密）
