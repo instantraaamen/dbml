@@ -226,9 +226,9 @@ describe('ExcelExporter', () => {
 
       // データ行の確認
       const dataRow = overviewSheet.getRow(2);
-      expect(dataRow.getCell(1).value).toBe('test_table');
-      expect(dataRow.getCell(2).value).toBe('テストテーブル');
-      expect(dataRow.getCell(3).value).toBe(1);
+      expect(dataRow.getCell(1).value).toBe('users');
+      expect(dataRow.getCell(2).value).toBe('ユーザー情報テーブル');
+      expect(dataRow.getCell(3).value).toBe(2);
     });
   });
 });

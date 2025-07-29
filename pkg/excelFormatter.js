@@ -55,6 +55,9 @@ class ExcelFormatter {
 
       await this.workbook.xlsx.writeFile(outputPath);
       
+      // ファイル書き込み完了を確実にするため短時間待機
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      
       // CI環境での書き込み完了を確実にするため、ファイルハンドルを同期
       if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
         try {
@@ -236,10 +239,10 @@ class ExcelFormatter {
     const isCI =
       process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 
-    // CI環境では安定性を重視した設定（大幅強化）
-    const maxRetries = isCI ? 80 : 15;
-    const baseDelay = isCI ? 50 : 20;
-    const maxDelay = isCI ? 300 : 100;
+    // CI環境では安定性を重視しつつパフォーマンスを考慮した設定
+    const maxRetries = isCI ? 60 : 15;
+    const baseDelay = isCI ? 30 : 20;
+    const maxDelay = isCI ? 200 : 100;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       // ファイル存在確認
