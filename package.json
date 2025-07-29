@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "babel src --out-dir lib --copy-files",
+    "convert": "node bin/dbml-convert.js",
     "test": "npm run build && jest",
     "test:watch": "jest --watch",
     "test:coverage": "npm run build && jest --coverage",
