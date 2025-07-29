@@ -61,10 +61,17 @@ class ExcelExporter {
     }
 
     try {
-      // 出力ディレクトリの存在確認
+      // 出力ディレクトリの存在確認と作成（CI環境での競合状態を考慮）
       const outputDir = path.dirname(outputPath);
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+      try {
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+      } catch (mkdirError) {
+        // 他のプロセスが同時にディレクトリを作成した場合を考慮
+        if (mkdirError.code !== 'EEXIST' && !fs.existsSync(outputDir)) {
+          throw mkdirError;
+        }
       }
 
       await this.workbook.xlsx.writeFile(outputPath);
