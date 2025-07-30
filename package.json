@@ -1,29 +1,32 @@
 {
   "name": "dbml-converter-extensions",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Extended DBML conversion utilities - CSV and Excel output with enhanced formatting",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "bin": {
-    "dbml-convert": "./bin/dbml-convert.js"
+    "dbml2csv": "bin/dbml2csv.js",
+    "dbml2xlsx": "bin/dbml2xlsx.js",
+    "dbml-convert": "bin/dbml-convert.js"
   },
   "files": [
-    "src/",
+    "lib/",
     "bin/",
-    "pkg/",
     "README.md",
     "LICENSE",
     "conversion_guide.md"
   ],
   "scripts": {
+    "build": "babel src --out-dir lib --copy-files",
     "convert": "node bin/dbml-convert.js",
-    "test": "jest",
+    "test": "npm run build && jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "lint": "eslint src/ bin/ test/ pkg/",
-    "lint:fix": "eslint src/ bin/ test/ pkg/ --fix",
+    "test:coverage": "npm run build && jest --coverage",
+    "lint": "eslint src/ bin/ test/",
+    "lint:fix": "eslint src/ bin/ test/ --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepublishOnly": "npm test && npm run lint"
+    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build && npm test && npm run lint"
   },
   "keywords": [
     "dbml",
@@ -53,11 +56,14 @@
     "url": "https://github.com/instantraaamen/dbml/issues"
   },
   "dependencies": {
-    "@dbml/core": "^3.6.2",
-    "commander": "^14.0.0",
+    "@dbml/core": "^3.13.9",
+    "commander": "^2.20.0",
     "exceljs": "^4.4.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
     "eslint": "^8.0.0",
     "jest": "^29.0.0",
     "prettier": "^3.0.0"
@@ -69,10 +75,11 @@
     "maxConcurrency": 1,
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
-      "src/**/*.js",
-      "!src/cli/index.js",
-      "pkg/**/*.js",
-      "!pkg/cli.js"
+      "lib/**/*.js",
+      "!lib/cli/index.js"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

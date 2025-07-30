@@ -1,22 +1,25 @@
 #!/usr/bin/env node
 
 /**
- * dbml-convert - Unified conversion command (legacy compatibility)
- * Maintains backward compatibility while following @dbml/cli patterns
+ * dbml2csv - Convert DBML to CSV format
+ * Specialized command following @dbml/cli patterns
  */
 
 const { Command } = require('commander');
-const { convertToFormat } = require('../lib/index');
+const CsvConverter = require('../lib/commands/CsvConverter');
 
 const program = new Command();
 
 program
-  .name('dbml-convert')
-  .description('Convert DBML files to various formats (CSV, Excel)')
+  .name('dbml2csv')
+  .description('Convert DBML files to CSV format')
   .version(require('../package.json').version)
   .usage('<input> [output] [options]')
-  .option('-f, --format <format>', 'Output format (csv, xlsx)', 'csv')
   .option('-v, --verbose', 'Enable verbose output')
+  .option(
+    '--single-file',
+    'Output as single overview file instead of multiple files'
+  )
   .parse(process.argv);
 
 const input = program.args[0];
@@ -33,15 +36,11 @@ if (!input) {
     if (options.verbose) {
       console.log(`Converting DBML file: ${input}`);
       console.log(`Output: ${output || 'auto-detected'}`);
-      console.log(`Format: ${options.format.toUpperCase()}`);
+      console.log('Format: CSV');
     }
 
-    const result = await convertToFormat(
-      input,
-      output,
-      options.format,
-      options
-    );
+    const converter = new CsvConverter();
+    const result = await converter.convert(input, output, options);
 
     // Display results
     console.log('✅ Conversion completed successfully');
@@ -55,18 +54,11 @@ if (!input) {
 
     console.log(`📊 Tables processed: ${result.tablesCount}`);
 
-    if (result.worksheets) {
-      console.log(`📋 Worksheets: ${result.worksheets.join(', ')}`);
-    }
-
     if (options.verbose) {
       console.log('\nConversion details:');
       console.log(`- Format: ${result.format}`);
       if (result.files) {
         console.log(`- Files: ${result.files.length}`);
-      }
-      if (result.worksheets) {
-        console.log(`- Worksheets: ${result.worksheets.length}`);
       }
     }
   } catch (error) {
@@ -83,23 +75,16 @@ program.on('--help', () => {
   console.log('');
   console.log('Examples:');
   console.log(
-    '  $ dbml-convert database.dbml --format csv   # Convert to CSV (multiple files)'
+    '  $ dbml2csv database.dbml                    # Convert to directory with multiple CSV files'
   );
   console.log(
-    '  $ dbml-convert database.dbml --format xlsx  # Convert to Excel'
+    '  $ dbml2csv database.dbml output/            # Convert to specific directory'
   );
   console.log(
-    '  $ dbml-convert database.dbml output/ -f csv # Convert to specific directory'
+    '  $ dbml2csv database.dbml tables.csv        # Convert to single CSV file'
   );
   console.log(
-    '  $ dbml-convert database.dbml out.xlsx -f xlsx # Convert to specific file'
+    '  $ dbml2csv database.dbml --verbose          # Convert with detailed output'
   );
-  console.log(
-    '  $ dbml-convert database.dbml --verbose      # Convert with detailed output'
-  );
-  console.log('');
-  console.log('Note: Consider using the specialized commands:');
-  console.log('  - dbml2csv for CSV conversion');
-  console.log('  - dbml2xlsx for Excel conversion');
   console.log('');
 });
